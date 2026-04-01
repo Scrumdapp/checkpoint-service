@@ -1,11 +1,11 @@
-package com.scrumdapp.checkinservice
+package com.scrumdapp.checkpointservice
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class CheckinServiceApplication
+class CheckpointServiceApplication
 
 fun main(args: Array<String>) {
-    runApplication<CheckinServiceApplication>(*args)
+    runApplication<CheckpointServiceApplication>(*args)
 }

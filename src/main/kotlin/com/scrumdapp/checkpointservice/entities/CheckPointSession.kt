@@ -1,4 +1,4 @@
-package com.scrumdapp.checkinservice.entities
+package com.scrumdapp.checkpointservice.entities
 
 import jakarta.persistence.*
 import java.io.Serializable
@@ -19,11 +19,13 @@ class CheckPointSession {
 
     var groupId: Int = 0
 
-    var userId: Int = 0
+    var groupuserId: Int = 0
 
     var startDate: LocalDate? = null
 
     var startTime: LocalTime? = null
+
+    var endTime: LocalTime? = null
 
     @Column(name = "duration_minutes")
     var durationMinutes: Long? = null

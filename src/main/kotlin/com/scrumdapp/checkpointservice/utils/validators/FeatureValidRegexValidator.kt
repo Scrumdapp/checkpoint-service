@@ -1,4 +1,4 @@
-package com.scrumdapp.checkinservice.utils.validators
+package com.scrumdapp.checkpointservice.utils.validators
 
 import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator

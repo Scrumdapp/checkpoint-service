@@ -1,4 +1,4 @@
-package com.scrumdapp.checkinservice
+package com.scrumdapp.checkpointservice
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
