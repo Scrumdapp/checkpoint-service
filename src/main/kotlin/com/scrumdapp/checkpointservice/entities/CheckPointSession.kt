@@ -1,8 +1,10 @@
 package com.scrumdapp.checkpointservice.entities
 
 import jakarta.persistence.*
+import org.hibernate.annotations.CreationTimestamp
 import org.springframework.data.annotation.CreatedDate
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalTime
 
 
@@ -19,8 +21,8 @@ class CheckpointSession {
     var groupId: Int = 0
     var groupUserId: Int = 0
 
-    @CreatedDate
-     val createdDate: Instant? = null
-    var startTime: LocalTime? = null
+    val createdDate: LocalDate = LocalDate.now()
+
+    var startTime: LocalTime = LocalTime.now()
     var durationMinutes: Int? = null
 }
