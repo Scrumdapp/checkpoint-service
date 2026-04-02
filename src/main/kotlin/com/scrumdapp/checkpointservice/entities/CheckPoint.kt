@@ -1,10 +1,7 @@
 package com.scrumdapp.checkpointservice.entities
 
 import jakarta.persistence.*
-import java.io.Serializable
 
-@Embeddable
-data class CheckPointId(val groupUserId: Int = 0, val checkpointSessionId: Int = 0) : Serializable
 
 @Entity
 @Table(name = "check_point")
