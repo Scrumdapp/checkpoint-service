@@ -18,7 +18,6 @@ public class SecurityConfiguration: WebMvcConfigurer {
             .csrf { it.disable() }
             .authorizeHttpRequests(this::createRequestMatcher)
 
-
         return httpSec.build()
     }
 
