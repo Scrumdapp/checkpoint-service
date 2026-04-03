@@ -9,6 +9,7 @@ import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.mappers.toPartialDto
 import com.scrumdapp.checkpointservice.services.CheckpointSessionService
 import jakarta.validation.Valid
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -22,17 +23,18 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 @RestController
-@RequestMapping("/sessions")
+@RequestMapping("/groups/{groupId}/sessions")
 class CheckpointSessionController(
     private val sessionService: CheckpointSessionService
 ) {
 
-    @GetMapping("/{groupId}")
+    @GetMapping
     fun getSessions(
         @PathVariable groupId: Int,
-        @RequestParam(required = false) onlyActive: Boolean?
+        @RequestParam(required = false) onlyActive: Boolean?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?
     ): List<CheckpointSessionResponseDto> {
-
+        // To Do, implement sessions for date
         return if (onlyActive != null && onlyActive) {
             sessionService.getActiveSessions(groupId).map { it.toDto() }
         } else {
@@ -40,34 +42,12 @@ class CheckpointSessionController(
         }
     }
 
-    @PostMapping("/{groupId}")
+    @PostMapping
     fun createSession(
         //To Do: Add interceptor for header information here
         @PathVariable groupId: Int,
         @RequestBody dto: CheckpointSessionCreationDto
     ): CheckpointSessionResponseDto {
         return sessionService.createSession(groupId, 1, dto).toDto()
-    }
-
-
-    @GetMapping("/{groupId}/{sessionId}")
-    fun getSession(
-        @PathVariable groupId: Int,
-        @PathVariable sessionId: Int,
-        @RequestParam(required = false) partial: Boolean?
-    ): SessionResponseDto {
-        val session = sessionService.getSession(groupId, sessionId) ?: //will modify this with an actual error
-        return CheckpointSessionPartialDto(
-            id = 5,
-            startTime = LocalTime.now(),
-            endTime = LocalTime.now(),
-            remainingTime = 69
-        )
-
-        return if (partial != null && partial) {
-            session.toPartialDto()
-        } else {
-            session.toDto()
-        }
     }
 }

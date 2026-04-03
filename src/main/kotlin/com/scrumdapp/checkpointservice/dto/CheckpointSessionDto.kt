@@ -20,6 +20,8 @@ data class CheckpointSessionResponseDto(
     val groupId: Int,
     val ownerId: Int,
     val createdDate: LocalDate,
+
+    val checkpoints: List<CheckpointResponseDto>,
 ): SessionResponseDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
