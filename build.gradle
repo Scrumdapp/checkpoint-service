@@ -10,7 +10,11 @@ group = 'com.scrumdapp'
 version = '0.0.1-SNAPSHOT'
 description = 'Checkpoint-Service'
 
-
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 repositories {
     mavenCentral()

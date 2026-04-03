@@ -15,10 +15,10 @@ class Checkpoint {
     @Column(nullable = false)
     val id: Long? = null
 
+    @Column(name = "checkpoint_session_id", insertable = false, updatable = false)
     var checkpointSessionId: Int? = null
 
     @ManyToOne
-    @MapsId("checkpointSessionId")
     @JoinColumn(name = "checkpoint_session_id")
     var checkpointSession: CheckpointSession? = null
 
