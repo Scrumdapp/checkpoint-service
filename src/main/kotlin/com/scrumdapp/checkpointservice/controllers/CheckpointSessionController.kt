@@ -46,7 +46,6 @@ class CheckpointSessionController(
         @PathVariable groupId: Int,
         @RequestBody dto: CheckpointSessionCreationDto
     ): CheckpointSessionResponseDto {
-        println(dto)
         return sessionService.createSession(groupId, 1, dto).toDto()
     }
 
@@ -70,13 +69,5 @@ class CheckpointSessionController(
         } else {
             session.toDto()
         }
-    }
-
-    @PostMapping("/{groupId}/test")
-    fun updateSession(
-        @PathVariable groupId: Int,
-        @RequestBody meh: String
-    ): String {
-        return meh
     }
 }
