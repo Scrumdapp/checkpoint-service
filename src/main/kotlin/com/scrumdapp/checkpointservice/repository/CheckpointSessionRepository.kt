@@ -1,4 +1,10 @@
 package com.scrumdapp.checkpointservice.repository
 
-class CheckpointSessionRepository {
+import com.scrumdapp.checkpointservice.entities.CheckpointSession
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface CheckpointSessionRepository: JpaRepository<CheckpointSession, Int> {
+
+    fun findByIdAndGroupId(id: Int, groupId: Int): CheckpointSession?
+    fun findAllByGroupId(groupId: Int): List<CheckpointSession>
 }
