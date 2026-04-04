@@ -34,6 +34,11 @@ class NotFoundException(
     override val message: String? = "Not found"
 ): ApiException(code, message)
 
+class ForbiddenException(
+    override val code: Int = 403,
+    override val message: String? = "Forbidden"
+): ApiException(code, message)
+
 class BadRequestException(
     override val code: Int = 400,
     override val message: String? = "Bad Request"
