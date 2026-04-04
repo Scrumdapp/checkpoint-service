@@ -14,7 +14,6 @@ data class CheckpointResponseDto(
 )
 
 data class CheckpointPatchDto(
-    val groupUserId: Int,
     val presence: Int?,
     val impediment: String?,
     val stars: Int?,

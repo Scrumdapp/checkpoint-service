@@ -34,11 +34,10 @@ class CheckpointSessionController(
         @RequestParam(required = false) onlyActive: Boolean?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?
     ): List<CheckpointSessionResponseDto> {
-        // To Do, implement sessions for date
         return if (onlyActive != null && onlyActive) {
-            sessionService.getActiveSessions(groupId).map { it.toDto() }
+            sessionService.getActiveSessions(groupId, date)
         } else {
-            sessionService.getSessions(groupId).map { it.toDto() }
+            sessionService.getSessions(groupId, date)
         }
     }
 
@@ -48,6 +47,6 @@ class CheckpointSessionController(
         @PathVariable groupId: Int,
         @RequestBody dto: CheckpointSessionCreationDto
     ): CheckpointSessionResponseDto {
-        return sessionService.createSession(groupId, 1, dto).toDto()
+        return sessionService.createSession(groupId, 1, dto)
     }
 }

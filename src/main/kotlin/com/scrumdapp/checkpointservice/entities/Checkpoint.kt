@@ -15,9 +15,6 @@ class Checkpoint {
     @Column(nullable = false)
     val id: Long = 0
 
-    @Column(name = "checkpoint_session_id", insertable = false, updatable = false)
-    var checkpointSessionId: Int = 0
-
     @ManyToOne
     @JoinColumn(name = "checkpoint_session_id")
     var checkpointSession: CheckpointSession? = null
