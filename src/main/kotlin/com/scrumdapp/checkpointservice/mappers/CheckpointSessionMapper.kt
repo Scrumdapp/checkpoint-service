@@ -6,6 +6,7 @@ import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
 import com.scrumdapp.checkpointservice.entities.Checkpoint
 import com.scrumdapp.checkpointservice.entities.CheckpointSession
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalTime
 
 fun CheckpointSession.toDto(checkpoints: List<Checkpoint>): CheckpointSessionResponseDto {
@@ -22,11 +23,16 @@ fun CheckpointSession.toDto(checkpoints: List<Checkpoint>): CheckpointSessionRes
 
 fun CheckpointSession.toPartialDto(): CheckpointSessionPartialDto {
     val endTime = this.startTime.plusMinutes(this.durationMinutes.toLong())
+    var remainingTime: Long = 0
+    if (this.createdDate == LocalDate.now()) {
+        remainingTime = Duration.between(LocalTime.now(), endTime).toSeconds()
+    }
+
     return CheckpointSessionPartialDto(
         id = this.id,
         startTime = this.startTime,
         endTime = endTime,
-        remainingTime = Duration.between(LocalTime.now(), endTime).toSeconds()
+        remainingTime = remainingTime
     )
 }
 
