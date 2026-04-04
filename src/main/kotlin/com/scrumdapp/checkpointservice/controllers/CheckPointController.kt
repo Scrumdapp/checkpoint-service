@@ -28,7 +28,6 @@ class CheckpointController(
     private val sessionService: CheckpointSessionService,
     private val checkPointService: CheckPointService
 ) {
-    // Checkpoint voor 1 dag
 
     @GetMapping("/{sessionId}")
     fun getCheckpoints(

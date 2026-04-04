@@ -39,7 +39,7 @@ public class SecurityConfiguration(
     private fun createRequestMatcher(auth: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
         auth
             .requestMatchers("/groups/{groupId}/sessions/**").permitAll()
-            .requestMatchers("/swagger-ui/**").permitAll() // Remove this for production
+            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Remove this for production
     }
 }
 

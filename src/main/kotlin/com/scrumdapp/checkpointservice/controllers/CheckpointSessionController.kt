@@ -8,8 +8,10 @@ import com.scrumdapp.checkpointservice.entities.CheckpointSession
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.mappers.toPartialDto
 import com.scrumdapp.checkpointservice.services.CheckpointSessionService
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -43,10 +45,12 @@ class CheckpointSessionController(
 
     @PostMapping
     fun createSession(
+        res: HttpServletResponse,
         //To Do: Add interceptor for header information here
         @PathVariable groupId: Int,
         @RequestBody dto: CheckpointSessionCreationDto
     ): CheckpointSessionResponseDto {
+        res.status = HttpStatus.CREATED.value()
         return sessionService.createSession(groupId, 1, dto)
     }
 }
