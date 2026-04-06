@@ -38,7 +38,7 @@ public class SecurityConfiguration(
 
     private fun createRequestMatcher(auth: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
         auth
-            .requestMatchers("/groups/{groupId}/sessions/**").permitAll()
+            .requestMatchers("/groups/{groupId}/sessions/**").permitAll() // This can be updated with a check if the passport is present
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Remove this for production
     }
 }
@@ -54,7 +54,7 @@ class CustomAuthEntryPoint: AuthenticationEntryPoint {
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = MediaType.APPLICATION_JSON_VALUE
 
-        ObjectMapper().writeValue(response.writer, ApiExceptionResponse(HttpStatus.FORBIDDEN.value(), authException.message))
+        ObjectMapper().writeValue(response.writer, ApiExceptionResponse(HttpStatus.UNAUTHORIZED.value(), authException.message))
     }
 
 }

@@ -6,6 +6,7 @@ import java.time.LocalDate
 
 interface CheckpointSessionRepository: JpaRepository<CheckpointSession, Int> {
 
+    fun findFirstById(id: Int): CheckpointSession?
     fun findByIdAndGroupId(id: Int, groupId: Int): CheckpointSession?
     fun findAllByGroupId(groupId: Int): List<CheckpointSession>
     fun findAllByGroupIdAndCreatedDate(groupId: Int, createDate: LocalDate): List<CheckpointSession>

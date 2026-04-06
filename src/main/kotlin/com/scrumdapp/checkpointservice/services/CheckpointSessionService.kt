@@ -1,9 +1,10 @@
 package com.scrumdapp.checkpointservice.services
 
+import com.scrumdapp.checkpointservice.ForbiddenException
+import com.scrumdapp.checkpointservice.NotFoundException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionPartialDto
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
-import com.scrumdapp.checkpointservice.entities.CheckpointSession
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.mappers.toEntity
 import com.scrumdapp.checkpointservice.mappers.toPartialDto
@@ -58,7 +59,7 @@ class CheckpointSessionService(
     }
 
     fun getSession(groupId: Int, id: Int): CheckpointSessionResponseDto? {
-        val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: return null
+        val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: throw NotFoundException(message = "Checkpoint with id $id not found")
 
         val checkpoints = checkpointRepository.findAllByCheckpointSessionId(session.id)
 
@@ -66,12 +67,25 @@ class CheckpointSessionService(
     }
 
     fun getPartialSession(groupId: Int, id: Int): CheckpointSessionPartialDto? {
-        val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: return null
+        val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: throw NotFoundException(message = "Checkpoint with id $id not found")
         return session.toPartialDto()
     }
 
     fun createSession(groupId: Int, ownerId: Int, dto: CheckpointSessionCreationDto): CheckpointSessionResponseDto {
         val checkpointSession = dto.toEntity(groupId, ownerId)
         return checkpointSessionRepository.save(checkpointSession).toDto(emptyList())
+    }
+
+    fun disableSession(id: Int, userId: Int): CheckpointSessionResponseDto {
+        val session = checkpointSessionRepository.findFirstById(id) ?: throw NotFoundException(message = "Checkpoint with id $id not found")
+
+        if (session.groupUserId != userId) throw ForbiddenException(message = "Only the owner of the session can modify it")
+
+        // Disables the session by forcing the remaining time to 0
+        session.durationMinutes = 0
+        val newSession = checkpointSessionRepository.save(session)
+
+        val checkpoints = checkpointRepository.findAllByCheckpointSessionId(session.id)
+        return newSession.toDto(checkpoints)
     }
 }
