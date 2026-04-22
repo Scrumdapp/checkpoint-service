@@ -34,12 +34,14 @@ class CheckpointSessionController(
     fun getSessions(
         @PathVariable groupId: Int,
         @RequestParam(required = false) onlyActive: Boolean?,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) startDate: LocalDate?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) endDate: LocalDate?
     ): List<CheckpointSessionResponseDto> {
-        return if (onlyActive != null && onlyActive) {
-            sessionService.getActiveSessions(groupId, date)
-        } else {
-            sessionService.getSessions(groupId, date)
+        return when {
+            onlyActive == true -> sessionService.getActiveSessions(groupId, date)
+            startDate != null && endDate != null -> sessionService.getSessionsBetweenDates(groupId, startDate, endDate)
+            else -> sessionService.getSessions(groupId, date)
         }
     }
 

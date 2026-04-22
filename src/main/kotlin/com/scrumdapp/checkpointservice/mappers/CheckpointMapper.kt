@@ -2,17 +2,19 @@ package com.scrumdapp.checkpointservice.mappers
 
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
+import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
 import com.scrumdapp.checkpointservice.entities.Checkpoint
 import com.scrumdapp.checkpointservice.entities.CheckpointSession
 
 fun Checkpoint.toDto(): CheckpointResponseDto {
     return CheckpointResponseDto(
         id = this.id,
+        sessionId = this.checkpointSession!!.id,
         groupUserId = this.groupUserId,
         presence = this.presence,
         impediment = this.impediment,
         stars = this.stars,
-        comment = this.comment,
+        comment = this.comment
     )
 }
 

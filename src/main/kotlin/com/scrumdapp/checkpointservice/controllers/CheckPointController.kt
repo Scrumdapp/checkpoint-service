@@ -42,6 +42,14 @@ class CheckpointController(
         }
     }
 
+    @GetMapping("/checkpoints")
+    fun getCheckpointsByUser(
+        @PathVariable groupId: Int,
+        @RequestParam groupUserId: Int
+    ): List<CheckpointResponseDto> {
+        return checkPointService.findAllByGroupUserId(groupUserId)
+    }
+
     @PatchMapping("/{sessionId}")
     fun updateCheckpoint(
         @PathVariable groupId: Int,

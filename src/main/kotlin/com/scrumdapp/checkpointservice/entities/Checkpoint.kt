@@ -21,6 +21,7 @@ class Checkpoint {
 
     var groupUserId: Int = 0
 
+
     @Column(columnDefinition = "TEXT")
     var impediment: String? = null
     var presence: Int? = null

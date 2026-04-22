@@ -22,4 +22,5 @@ class CheckpointSession {
 
     var startTime: LocalTime = LocalTime.now()
     var durationMinutes: Int = 15
+    var name: String? = null
 }

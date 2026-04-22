@@ -16,8 +16,10 @@ fun CheckpointSession.toDto(checkpoints: List<Checkpoint>): CheckpointSessionRes
         ownerId = this.groupUserId,
         createdDate = this.createdDate,
         startTime = this.startTime,
-        endTime = this.startTime.plusMinutes(this.durationMinutes.toLong()),
+        name = this.name,
+        duration = this.durationMinutes.toLong(),
         checkpoints = checkpoints.map { it.toDto() }
+
     )
 }
 
@@ -31,7 +33,7 @@ fun CheckpointSession.toPartialDto(): CheckpointSessionPartialDto {
     return CheckpointSessionPartialDto(
         id = this.id,
         startTime = this.startTime,
-        endTime = endTime,
+        duration = this.durationMinutes.toLong(),
         remainingTime = remainingTime
     )
 }
@@ -43,6 +45,6 @@ fun CheckpointSessionCreationDto.toEntity(
     return CheckpointSession().apply {
         this.groupId = groupId
         this.groupUserId = ownerId
-        durationMinutes = this@toEntity.duration?: 15
+        durationMinutes = this@toEntity.duration ?: 15
     }
 }

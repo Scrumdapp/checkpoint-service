@@ -4,6 +4,7 @@ import com.scrumdapp.checkpointservice.BadRequestException
 import com.scrumdapp.checkpointservice.NotFoundException
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
+import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
 import com.scrumdapp.checkpointservice.entities.Checkpoint
 import com.scrumdapp.checkpointservice.entities.CheckpointSession
 import com.scrumdapp.checkpointservice.mappers.applyPatch
@@ -41,6 +42,11 @@ class CheckPointService(
 
         return checkpointRepository.save(checkpoint).toDto()
     }
+    fun findAllByGroupUserId(userId: Int): List<CheckpointResponseDto> {
+        if (!checkpointRepository.existsByGroupUserId(userId)) throw NotFoundException(message = "No checkpoints found for user $userId")
+        return checkpointRepository.findAllByGroupUserId(userId).map { it.toDto() }
+    }
+
 
     private fun checkSessionAge(session: CheckpointSession): Boolean {
         if (session.createdDate != LocalDate.now()) return false
