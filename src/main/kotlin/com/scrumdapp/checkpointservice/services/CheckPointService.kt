@@ -42,6 +42,12 @@ class CheckPointService(
 
         return checkpointRepository.save(checkpoint).toDto()
     }
+
+    fun findAllBySessionId(sessionId: Int): List<CheckpointResponseDto> {
+        if (!checkpointRepository.existsByCheckpointSessionId(sessionId)) throw NotFoundException(message = "No checkpoints found for session $sessionId")
+        return checkpointRepository.findAllByCheckpointSessionId(sessionId).map { it.toDto() }
+    }
+    
     fun findAllByGroupUserId(userId: Int): List<CheckpointResponseDto> {
         if (!checkpointRepository.existsByGroupUserId(userId)) throw NotFoundException(message = "No checkpoints found for user $userId")
         return checkpointRepository.findAllByGroupUserId(userId).map { it.toDto() }

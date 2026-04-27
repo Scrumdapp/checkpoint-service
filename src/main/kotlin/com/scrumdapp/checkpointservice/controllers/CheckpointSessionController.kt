@@ -1,12 +1,9 @@
 package com.scrumdapp.checkpointservice.controllers
 
+import com.scrumdapp.checkpointservice.BadRequestException
+import com.scrumdapp.checkpointservice.NotFoundException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
-import com.scrumdapp.checkpointservice.dto.CheckpointSessionPartialDto
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
-import com.scrumdapp.checkpointservice.dto.SessionResponseDto
-import com.scrumdapp.checkpointservice.entities.CheckpointSession
-import com.scrumdapp.checkpointservice.mappers.toDto
-import com.scrumdapp.checkpointservice.mappers.toPartialDto
 import com.scrumdapp.checkpointservice.services.CheckpointSessionService
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
@@ -19,10 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import tools.jackson.databind.ObjectMapper
-import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalTime
 
 @RestController
 @RequestMapping("/groups/{groupId}/sessions")
@@ -35,14 +29,32 @@ class CheckpointSessionController(
         @PathVariable groupId: Int,
         @RequestParam(required = false) onlyActive: Boolean?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) startDate: LocalDate?,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) endDate: LocalDate?
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate
     ): List<CheckpointSessionResponseDto> {
+        if (from != null && to != null && from.isAfter(to)) {
+            throw BadRequestException(message = "from date must be after to date")
+        }
+
         return when {
             onlyActive == true -> sessionService.getActiveSessions(groupId, date)
-            startDate != null && endDate != null -> sessionService.getSessionsBetweenDates(groupId, startDate, endDate)
+            from != null && to != null -> sessionService.getSessionsBetweenDates(groupId, from, to)
             else -> sessionService.getSessions(groupId, date)
         }
+    }
+    @GetMapping("/on-date")
+    fun getSessionsOnDate(
+        @PathVariable groupId: Int,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate
+    ): List<CheckpointSessionResponseDto> {
+        return sessionService.getSessionOnDate(groupId, date)
+    }
+    @GetMapping
+    fun getSession(
+        @PathVariable groupId: Int,
+        @PathVariable sessionId: Int
+    ): CheckpointSessionResponseDto {
+        return sessionService.getSession(groupId, sessionId) ?: throw NotFoundException(message = "Session with id $sessionId not found")
     }
 
     @PostMapping
@@ -50,7 +62,7 @@ class CheckpointSessionController(
         res: HttpServletResponse,
         //To Do: Add interceptor for header information here
         @PathVariable groupId: Int,
-        @RequestBody dto: CheckpointSessionCreationDto
+        @Valid @RequestBody dto: CheckpointSessionCreationDto
     ): CheckpointSessionResponseDto {
         res.status = HttpStatus.CREATED.value()
         return sessionService.createSession(groupId, 1, dto)

@@ -39,6 +39,7 @@ public class SecurityConfiguration(
     private fun createRequestMatcher(auth: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
         auth
             .requestMatchers("/groups/{groupId}/sessions/**").permitAll() // This can be updated with a check if the passport is present
+            .requestMatchers("/groups/{groupId}/checkpoints/**").permitAll() // Same as with sessions, can be updated with a check if passport is present
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Remove this for production
     }
 }
