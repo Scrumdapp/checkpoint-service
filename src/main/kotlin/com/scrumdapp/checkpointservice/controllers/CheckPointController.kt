@@ -23,18 +23,13 @@ class CheckpointController(
     fun getCheckpoints(
         @PathVariable groupId: Int,
         @RequestParam(required = false) sessionId: Int?,
+        @RequestParam(required = false) groupUserId: Int?,
     ): List<CheckpointResponseDto> {
-        sessionId ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "sessionId is required")
-        return checkPointService.findAllBySessionId(sessionId)
-    }
-
-    @GetMapping
-    fun getCheckpointsByUser(
-        @PathVariable groupId: Int,
-        @RequestParam(required = false) groupUserId: Int,
-        @RequestParam(required = false) sessionId: Int?,
-    ): List<CheckpointResponseDto> {
-        return checkPointService.findAllByGroupUserId(groupUserId)
+        return when {
+            sessionId != null -> checkPointService.findAllBySessionId(sessionId)
+            groupUserId != null -> checkPointService.findAllByGroupUserId(groupUserId)
+            else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Either sessionId or groupUserId is required")
+        }
     }
 
     @PatchMapping("/{sessionId}")

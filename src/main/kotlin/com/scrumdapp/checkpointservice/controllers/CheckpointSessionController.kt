@@ -25,15 +25,15 @@ class CheckpointSessionController(
 ) {
 
     @GetMapping
-    fun getSessions(
+    fun getSessionsBetweenDates(
         @PathVariable groupId: Int,
         @RequestParam(required = false) onlyActive: Boolean?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate?
     ): List<CheckpointSessionResponseDto> {
         if (from != null && to != null && from.isAfter(to)) {
-            throw BadRequestException(message = "from date must be after to date")
+            throw BadRequestException(message = "from date must be before to date")
         }
 
         return when {
@@ -42,6 +42,9 @@ class CheckpointSessionController(
             else -> sessionService.getSessions(groupId, date)
         }
     }
+
+
+
     @GetMapping("/on-date")
     fun getSessionsOnDate(
         @PathVariable groupId: Int,
@@ -49,12 +52,13 @@ class CheckpointSessionController(
     ): List<CheckpointSessionResponseDto> {
         return sessionService.getSessionOnDate(groupId, date)
     }
-    @GetMapping
+    @GetMapping("/{sessionId}")
     fun getSession(
         @PathVariable groupId: Int,
         @PathVariable sessionId: Int
     ): CheckpointSessionResponseDto {
-        return sessionService.getSession(groupId, sessionId) ?: throw NotFoundException(message = "Session with id $sessionId not found")
+        return sessionService.getSession(groupId, sessionId)
+            ?: throw NotFoundException(message = "session with $sessionId not found")
     }
 
     @PostMapping
