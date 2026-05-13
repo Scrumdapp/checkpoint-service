@@ -1,7 +1,7 @@
 package com.scrumdapp.checkpointservice.controllers
 
-import com.scrumdapp.checkpointservice.ApiException
-import com.scrumdapp.checkpointservice.NotFoundException
+import com.scrumdapp.checkpointservice.configs.ApiException
+import com.scrumdapp.checkpointservice.configs.NotFoundException
 import jakarta.servlet.RequestDispatcher
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.boot.webmvc.error.ErrorController

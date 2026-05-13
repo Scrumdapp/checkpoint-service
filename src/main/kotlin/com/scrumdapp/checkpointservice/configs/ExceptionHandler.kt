@@ -1,7 +1,8 @@
-package com.scrumdapp.checkpointservice
+package com.scrumdapp.checkpointservice.configs
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
@@ -10,8 +11,14 @@ class ExceptionHandler {
 
     @ExceptionHandler(ApiException::class)
     fun handleApiException(e: ApiException): ResponseEntity<ApiExceptionResponse> {
-        // To Do add logging & stacktrace
         return ResponseEntity.status(e.code).body(ApiExceptionResponse(e.code, e.message))
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationException(e: MethodArgumentNotValidException): ResponseEntity<ApiExceptionResponse> {
+        val message = e.bindingResult.fieldErrors
+            .joinToString(", ") { it.defaultMessage ?: "Invalid field" }
+        return ResponseEntity.status(400).body(ApiExceptionResponse(400, message))
     }
 }
 
@@ -48,3 +55,4 @@ class ServerFaultException(
     override val message: String? = "Bad Request",
     override val enableLogging: Boolean = true
 ): ApiException(code, message, enableLogging)
+

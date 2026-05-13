@@ -1,8 +1,6 @@
 package com.scrumdapp.checkpointservice.configs
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.scrumdapp.checkpointservice.ApiExceptionResponse
-import com.scrumdapp.checkpointservice.ForbiddenException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
@@ -12,6 +10,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
@@ -31,18 +30,24 @@ public class SecurityConfiguration(
             .authorizeHttpRequests(this::createRequestMatcher)
             .exceptionHandling {
                 it.authenticationEntryPoint(customAuthEntryPoint)
+                it.accessDeniedHandler { _, response, _ ->
+                    response.status = HttpServletResponse.SC_FORBIDDEN
+                }
             }
 
         return httpSec.build()
     }
 
-    private fun createRequestMatcher(auth: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
-        auth
-            .requestMatchers("/groups/{groupId}/sessions/**").permitAll() // This can be updated with a check if the passport is present
-            .requestMatchers("/groups/{groupId}/checkpoints/**").permitAll() // Same as with sessions, can be updated with a check if passport is present
-            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Remove this for production
+
+        private fun createRequestMatcher(auth: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
+            auth
+                .requestMatchers("/groups/*/sessions/**").permitAll()
+                .requestMatchers("/groups/*/checkpoints/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .anyRequest().denyAll()
+        }
     }
-}
+
 
 // Move this to another file
 @Component
@@ -52,10 +57,10 @@ class CustomAuthEntryPoint: AuthenticationEntryPoint {
         response: HttpServletResponse,
         authException: AuthenticationException
     ) {
+        if (response.isCommitted) return
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = MediaType.APPLICATION_JSON_VALUE
-
         ObjectMapper().writeValue(response.writer, ApiExceptionResponse(HttpStatus.UNAUTHORIZED.value(), authException.message))
     }
-
 }
+

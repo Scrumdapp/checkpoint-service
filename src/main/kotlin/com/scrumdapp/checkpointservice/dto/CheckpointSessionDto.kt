@@ -19,10 +19,10 @@ data class CheckpointSessionResponseDto(
     override val startTime: LocalTime,
     override val duration: Long,
     val groupId: Int,
-    val name: String?,
     val ownerId: Int,
     val createdDate: LocalDate,
     val checkpoints: List<CheckpointResponseDto>,
+    val name: String?,
 ): SessionResponseDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

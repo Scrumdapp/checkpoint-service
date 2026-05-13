@@ -1,20 +1,16 @@
 package com.scrumdapp.checkpointservice.services
 
-import com.scrumdapp.checkpointservice.BadRequestException
-import com.scrumdapp.checkpointservice.NotFoundException
+import com.scrumdapp.checkpointservice.configs.BadRequestException
+import com.scrumdapp.checkpointservice.configs.NotFoundException
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
-import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
-import com.scrumdapp.checkpointservice.entities.Checkpoint
 import com.scrumdapp.checkpointservice.entities.CheckpointSession
 import com.scrumdapp.checkpointservice.mappers.applyPatch
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.mappers.toEntity
 import com.scrumdapp.checkpointservice.repository.CheckpointRepository
 import com.scrumdapp.checkpointservice.repository.CheckpointSessionRepository
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
@@ -52,6 +48,13 @@ class CheckPointService(
         if (!checkpointRepository.existsByGroupUserId(userId)) throw NotFoundException(message = "No checkpoints found for user $userId")
         return checkpointRepository.findAllByGroupUserId(userId).map { it.toDto() }
     }
+
+    fun findAllBySessionIdAndGroupUserId(sessionId: Int, groupUserId: Int): List<CheckpointResponseDto> {
+        val checkpoints = checkpointRepository.findByCheckpointSessionIdAndGroupUserId(sessionId, groupUserId)
+        if (checkpoints.isEmpty()) { throw NotFoundException(message = "No checkpoints found for user $groupUserId in session $sessionId") }
+        return checkpoints.map { it.toDto() }
+    }
+
 
 
     private fun checkSessionAge(session: CheckpointSession): Boolean {

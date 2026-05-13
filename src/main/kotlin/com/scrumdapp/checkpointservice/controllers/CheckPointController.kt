@@ -19,16 +19,18 @@ class CheckpointController(
     private val checkPointService: CheckPointService
 ) {
 
+
     @GetMapping
     fun getCheckpoints(
         @PathVariable groupId: Int,
         @RequestParam(required = false) sessionId: Int?,
         @RequestParam(required = false) groupUserId: Int?,
     ): List<CheckpointResponseDto> {
-        return when {
+
+        return when {sessionId != null && groupUserId != null -> checkPointService.findAllBySessionIdAndGroupUserId(sessionId, groupUserId)
             sessionId != null -> checkPointService.findAllBySessionId(sessionId)
             groupUserId != null -> checkPointService.findAllByGroupUserId(groupUserId)
-            else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Either sessionId or groupUserId is required")
+            else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST, "At least one parameter is required")
         }
     }
 
