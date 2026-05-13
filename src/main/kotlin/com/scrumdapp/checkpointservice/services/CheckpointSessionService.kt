@@ -1,7 +1,7 @@
 package com.scrumdapp.checkpointservice.services
 
-import com.scrumdapp.checkpointservice.ForbiddenException
-import com.scrumdapp.checkpointservice.NotFoundException
+import com.scrumdapp.checkpointservice.configs.ForbiddenException
+import com.scrumdapp.checkpointservice.configs.NotFoundException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionPartialDto
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto

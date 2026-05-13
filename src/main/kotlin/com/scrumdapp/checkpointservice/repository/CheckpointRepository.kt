@@ -13,4 +13,5 @@ interface CheckpointRepository: JpaRepository<Checkpoint, Long> {
     fun findAllByGroupUserId(userId: Int): List<Checkpoint>
     fun existsByGroupUserId(userId: Int): Boolean
     fun existsByCheckpointSessionId(sessionId: Int): Boolean
+    fun findByCheckpointSessionIdAndGroupUserId(sessionId: Int, groupUserId: Int): List<Checkpoint>
 }
