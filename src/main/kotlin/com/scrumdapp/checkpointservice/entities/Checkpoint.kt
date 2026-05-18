@@ -16,8 +16,8 @@ class Checkpoint {
     val id: Long = 0
 
     @ManyToOne
-    @JoinColumn(name = "checkpoint_session_id")
-    var checkpointSession: CheckpointSession? = null
+    @JoinColumn(name = "checkpoint_session_id", nullable = false)
+    lateinit var checkpointSession: CheckpointSession
 
     var groupUserId: Long = 0
 
