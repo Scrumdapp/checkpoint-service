@@ -5,7 +5,7 @@ CREATE SEQUENCE IF NOT EXISTS checkpoint_sessions_seq START WITH 1 INCREMENT BY 
 CREATE TABLE check_point
 (
     id                    BIGINT NOT NULL,
-    checkpoint_session_id BIGINT,
+    checkpoint_session_id BIGINT NOT NULL,
     group_user_id         BIGINT NOT NULL,
     impediment            TEXT,
     presence              INTEGER,
