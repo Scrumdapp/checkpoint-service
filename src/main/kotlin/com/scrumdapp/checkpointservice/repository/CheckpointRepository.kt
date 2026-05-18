@@ -1,0 +1,17 @@
+package com.scrumdapp.checkpointservice.repository
+
+import com.scrumdapp.checkpointservice.entities.Checkpoint
+import com.scrumdapp.checkpointservice.entities.CheckpointSession
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
+
+@Repository
+interface CheckpointRepository: JpaRepository<Checkpoint, Long> {
+
+    fun findByCheckpointSessionAndGroupUserId(checkpointSession: CheckpointSession, groupUserId: Int): Checkpoint?
+    fun findAllByCheckpointSessionId(sessionId: Int): List<Checkpoint>
+    fun findAllByGroupUserId(userId: Int): List<Checkpoint>
+    fun existsByGroupUserId(userId: Int): Boolean
+    fun existsByCheckpointSessionId(sessionId: Int): Boolean
+    fun findByCheckpointSessionIdAndGroupUserId(sessionId: Int, groupUserId: Int): List<Checkpoint>
+}

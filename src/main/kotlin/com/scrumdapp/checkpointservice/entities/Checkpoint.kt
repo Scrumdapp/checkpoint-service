@@ -13,16 +13,14 @@ class Checkpoint {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(nullable = false)
-    val id: Long? = null
-
-    @Column(name = "checkpoint_session_id", insertable = false, updatable = false)
-    var checkpointSessionId: Int? = null
+    val id: Long = 0
 
     @ManyToOne
     @JoinColumn(name = "checkpoint_session_id")
     var checkpointSession: CheckpointSession? = null
 
-    var groupUserId: Int? = null
+    var groupUserId: Int = 0
+
 
     @Column(columnDefinition = "TEXT")
     var impediment: String? = null
