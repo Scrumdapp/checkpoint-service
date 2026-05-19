@@ -22,9 +22,9 @@ class CheckpointController(
 
     @GetMapping
     fun getCheckpoints(
-        @PathVariable groupId: Int,
-        @RequestParam(required = false) sessionId: Int?,
-        @RequestParam(required = false) groupUserId: Int?,
+        @PathVariable groupId: Long,
+        @RequestParam(required = false) sessionId: Long?,
+        @RequestParam(required = false) groupUserId: Long?,
     ): List<CheckpointResponseDto> {
 
         return when {sessionId != null && groupUserId != null -> checkPointService.findAllBySessionIdAndGroupUserId(sessionId, groupUserId)
@@ -36,8 +36,8 @@ class CheckpointController(
 
     @PatchMapping("/{sessionId}")
     fun updateCheckpoints(
-        @PathVariable groupId: Int,
-        @PathVariable sessionId: Int,
+        @PathVariable groupId: Long,
+        @PathVariable sessionId: Long,
         @RequestBody dto: List<CheckpointPatchDto>
     ): List<CheckpointResponseDto> {
         return dto.map { checkPointService.upsertCheckpoint(sessionId, groupId, 1, it) }

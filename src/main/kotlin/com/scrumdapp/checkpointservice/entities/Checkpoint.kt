@@ -4,11 +4,11 @@ import jakarta.persistence.*
 import java.io.Serializable
 
 @Embeddable
-data class CheckPointId(val groupUserId: Int = 0, val checkpointSessionId: Int = 0) : Serializable
+data class CheckPointId(val groupUserId: Long = 0, val checkpointSessionId: Long = 0) : Serializable
 
 @Entity
 @Table(name = "check_point")
-class Checkpoint {
+class Checkpoint(checkpointSession: CheckpointSession) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -17,9 +17,9 @@ class Checkpoint {
 
     @ManyToOne
     @JoinColumn(name = "checkpoint_session_id")
-    var checkpointSession: CheckpointSession? = null
+    var checkpointSession: CheckpointSession = checkpointSession
 
-    var groupUserId: Int = 0
+    var groupUserId: Long = 0
 
 
     @Column(columnDefinition = "TEXT")

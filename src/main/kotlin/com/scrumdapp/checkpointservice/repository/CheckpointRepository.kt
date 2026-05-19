@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CheckpointRepository: JpaRepository<Checkpoint, Long> {
 
-    fun findByCheckpointSessionAndGroupUserId(checkpointSession: CheckpointSession, groupUserId: Int): Checkpoint?
-    fun findAllByCheckpointSessionId(sessionId: Int): List<Checkpoint>
-    fun findAllByGroupUserId(userId: Int): List<Checkpoint>
-    fun existsByGroupUserId(userId: Int): Boolean
-    fun existsByCheckpointSessionId(sessionId: Int): Boolean
-    fun findByCheckpointSessionIdAndGroupUserId(sessionId: Int, groupUserId: Int): List<Checkpoint>
+    fun findByCheckpointSessionAndGroupUserId(checkpointSession: CheckpointSession, groupUserId: Long): Checkpoint?
+    fun findAllByCheckpointSessionId(sessionId: Long): List<Checkpoint>
+    fun findAllByGroupUserId(userId: Long): List<Checkpoint>
+    fun existsByGroupUserId(userId: Long): Boolean
+    fun existsByCheckpointSessionId(sessionId: Long): Boolean
+    fun findByCheckpointSessionIdAndGroupUserId(sessionId: Long, groupUserId: Long): List<Checkpoint>
 }

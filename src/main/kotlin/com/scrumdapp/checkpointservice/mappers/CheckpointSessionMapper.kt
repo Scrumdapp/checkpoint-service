@@ -39,8 +39,8 @@ fun CheckpointSession.toPartialDto(): CheckpointSessionPartialDto {
 }
 
 fun CheckpointSessionCreationDto.toEntity(
-    groupId: Int,
-    ownerId: Int,
+    groupId: Long,
+    ownerId: Long,
 ): CheckpointSession {
     return CheckpointSession().apply {
         this.groupId = groupId

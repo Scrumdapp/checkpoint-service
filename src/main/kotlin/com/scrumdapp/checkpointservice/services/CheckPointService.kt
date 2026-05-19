@@ -21,7 +21,7 @@ class CheckPointService(
     private val checkpointSessionRepository: CheckpointSessionRepository
 ) {
 
-    fun upsertCheckpoint(sessionId: Int, groupId: Int, groupUserId: Int, dto: CheckpointPatchDto): CheckpointResponseDto {
+    fun upsertCheckpoint(sessionId: Long, groupId: Long, groupUserId: Long, dto: CheckpointPatchDto): CheckpointResponseDto {
         val session = checkpointSessionRepository.findByIdAndGroupId(sessionId, groupId)
             ?:
             throw NotFoundException(message =  "Checkpoint with id $sessionId not found")
@@ -39,17 +39,17 @@ class CheckPointService(
         return checkpointRepository.save(checkpoint).toDto()
     }
 
-    fun findAllBySessionId(sessionId: Int): List<CheckpointResponseDto> {
+    fun findAllBySessionId(sessionId: Long): List<CheckpointResponseDto> {
         if (!checkpointRepository.existsByCheckpointSessionId(sessionId)) throw NotFoundException(message = "No checkpoints found for session $sessionId")
         return checkpointRepository.findAllByCheckpointSessionId(sessionId).map { it.toDto() }
     }
     
-    fun findAllByGroupUserId(userId: Int): List<CheckpointResponseDto> {
+    fun findAllByGroupUserId(userId: Long): List<CheckpointResponseDto> {
         if (!checkpointRepository.existsByGroupUserId(userId)) throw NotFoundException(message = "No checkpoints found for user $userId")
         return checkpointRepository.findAllByGroupUserId(userId).map { it.toDto() }
     }
 
-    fun findAllBySessionIdAndGroupUserId(sessionId: Int, groupUserId: Int): List<CheckpointResponseDto> {
+    fun findAllBySessionIdAndGroupUserId(sessionId: Long, groupUserId: Long): List<CheckpointResponseDto> {
         val checkpoints = checkpointRepository.findByCheckpointSessionIdAndGroupUserId(sessionId, groupUserId)
         if (checkpoints.isEmpty()) { throw NotFoundException(message = "No checkpoints found for user $groupUserId in session $sessionId") }
         return checkpoints.map { it.toDto() }

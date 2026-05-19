@@ -2,14 +2,13 @@ package com.scrumdapp.checkpointservice.mappers
 
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
-import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
 import com.scrumdapp.checkpointservice.entities.Checkpoint
 import com.scrumdapp.checkpointservice.entities.CheckpointSession
 
 fun Checkpoint.toDto(): CheckpointResponseDto {
     return CheckpointResponseDto(
         id = this.id,
-        sessionId = this.checkpointSession!!.id,
+        sessionId = this.checkpointSession.id,
         groupUserId = this.groupUserId,
         presence = this.presence,
         impediment = this.impediment,
@@ -27,14 +26,13 @@ fun Checkpoint.applyPatch(dto: CheckpointPatchDto) = apply {
 
 fun CheckpointPatchDto.toEntity(
     session: CheckpointSession,
-    userId: Int
+    userId: Long
 ): Checkpoint {
-    return Checkpoint().apply {
+    return Checkpoint(session).apply {
         groupUserId = userId
         presence = this@toEntity.presence
         impediment = this@toEntity.impediment
         stars = this@toEntity.stars
         comment = this@toEntity.comment
-        checkpointSession = session
     }
 }

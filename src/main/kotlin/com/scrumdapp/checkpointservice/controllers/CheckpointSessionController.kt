@@ -26,7 +26,7 @@ class CheckpointSessionController(
 
     @GetMapping
     fun getSessionsBetweenDates(
-        @PathVariable groupId: Int,
+        @PathVariable groupId: Long,
         @RequestParam(required = false) onlyActive: Boolean?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate?,
@@ -47,15 +47,15 @@ class CheckpointSessionController(
 
     @GetMapping("/on-date")
     fun getSessionsOnDate(
-        @PathVariable groupId: Int,
+        @PathVariable groupId: Long,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate
     ): List<CheckpointSessionResponseDto> {
         return sessionService.getSessionOnDate(groupId, date)
     }
     @GetMapping("/{sessionId}")
     fun getSession(
-        @PathVariable groupId: Int,
-        @PathVariable sessionId: Int
+        @PathVariable groupId: Long,
+        @PathVariable sessionId: Long
     ): CheckpointSessionResponseDto {
         return sessionService.getSession(groupId, sessionId)
             ?: throw NotFoundException(message = "session with $sessionId not found")
@@ -65,7 +65,7 @@ class CheckpointSessionController(
     fun createSession(
         res: HttpServletResponse,
         //To Do: Add interceptor for header information here
-        @PathVariable groupId: Int,
+        @PathVariable groupId: Long,
         @Valid @RequestBody dto: CheckpointSessionCreationDto
     ): CheckpointSessionResponseDto {
         res.status = HttpStatus.CREATED.value()
