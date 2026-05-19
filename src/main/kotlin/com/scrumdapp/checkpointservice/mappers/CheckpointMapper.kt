@@ -26,14 +26,13 @@ fun Checkpoint.applyPatch(dto: CheckpointPatchDto) = apply {
 
 fun CheckpointPatchDto.toEntity(
     session: CheckpointSession,
-    userId: Int
+    userId: Long
 ): Checkpoint {
-    return Checkpoint().apply {
-        groupUserId = userId.toLong()
+    return Checkpoint(session).apply {
+        groupUserId = userId
         presence = this@toEntity.presence
         impediment = this@toEntity.impediment
         stars = this@toEntity.stars
         comment = this@toEntity.comment
-        checkpointSession = session
     }
 }

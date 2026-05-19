@@ -20,7 +20,7 @@ class CheckpointSessionService(
     val checkpointRepository: CheckpointRepository
 ) {
 
-    fun getSessions(groupId: Int, date: LocalDate?): List<CheckpointSessionResponseDto> {
+    fun getSessions(groupId: Long, date: LocalDate?): List<CheckpointSessionResponseDto> {
 
         val sessions = if (date != null) {
             checkpointSessionRepository.findAllByGroupIdAndCreatedDate(groupId, date)
@@ -36,7 +36,7 @@ class CheckpointSessionService(
         return response.toList()
     }
 
-    fun getActiveSessions(groupId: Int, date: LocalDate?): List<CheckpointSessionResponseDto> {
+    fun getActiveSessions(groupId: Long, date: LocalDate?): List<CheckpointSessionResponseDto> {
         val sessions = if (date != null) {
             checkpointSessionRepository.findAllByGroupIdAndCreatedDate(groupId, date)
         } else {
@@ -58,14 +58,14 @@ class CheckpointSessionService(
         return response.toList()
     }
 
-    fun getSession(groupId: Int, id: Int): CheckpointSessionResponseDto? {
+    fun getSession(groupId: Long, id: Long): CheckpointSessionResponseDto? {
         val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: throw NotFoundException(message = "Checkpoint with id $id not found")
 
         val checkpoints = checkpointRepository.findAllByCheckpointSessionId(session.id)
 
         return session.toDto(checkpoints)
     }
-    fun getSessionsBetweenDates(groupId: Int, startDate: LocalDate, endDate: LocalDate): List<CheckpointSessionResponseDto> {
+    fun getSessionsBetweenDates(groupId: Long, startDate: LocalDate, endDate: LocalDate): List<CheckpointSessionResponseDto> {
         val sessions = checkpointSessionRepository.findAllByGroupIdAndCreatedDateBetween(groupId, startDate, endDate)
         val response = mutableListOf<CheckpointSessionResponseDto>()
         for (session in sessions) {
@@ -75,7 +75,7 @@ class CheckpointSessionService(
         return response.toList()
     }
 
-    fun getSessionOnDate(groupId: Int, date: LocalDate): List<CheckpointSessionResponseDto> {
+    fun getSessionOnDate(groupId: Long, date: LocalDate): List<CheckpointSessionResponseDto> {
         val sessions = checkpointSessionRepository.findAllByGroupIdAndCreatedDate(groupId, date)
         val response = mutableListOf<CheckpointSessionResponseDto>()
         for (session in sessions) {
@@ -84,17 +84,17 @@ class CheckpointSessionService(
         }
         return response.toList()
     }
-    fun getPartialSession(groupId: Int, id: Int): CheckpointSessionPartialDto? {
+    fun getPartialSession(groupId: Long, id: Long): CheckpointSessionPartialDto? {
         val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: throw NotFoundException(message = "Checkpoint with id $id not found")
         return session.toPartialDto()
     }
 
-    fun createSession(groupId: Int, ownerId: Int, dto: CheckpointSessionCreationDto): CheckpointSessionResponseDto {
+    fun createSession(groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): CheckpointSessionResponseDto {
         val checkpointSession = dto.toEntity(groupId, ownerId)
         return checkpointSessionRepository.save(checkpointSession).toDto(emptyList())
     }
 
-    fun disableSession(id: Int, userId: Int): CheckpointSessionResponseDto {
+    fun disableSession(id: Long, userId: Long): CheckpointSessionResponseDto {
         val session = checkpointSessionRepository.findFirstById(id) ?: throw NotFoundException(message = "Checkpoint with id $id not found")
 
         if (session.groupUserId != userId) throw ForbiddenException(message = "Only the owner of the session can modify it")

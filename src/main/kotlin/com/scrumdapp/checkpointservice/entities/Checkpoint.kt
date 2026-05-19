@@ -8,7 +8,7 @@ data class CheckPointId(val groupUserId: Long = 0, val checkpointSessionId: Long
 
 @Entity
 @Table(name = "check_point")
-class Checkpoint {
+class Checkpoint(checkpointSession: CheckpointSession) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -16,8 +16,8 @@ class Checkpoint {
     val id: Long = 0
 
     @ManyToOne
-    @JoinColumn(name = "checkpoint_session_id", nullable = false)
-    lateinit var checkpointSession: CheckpointSession
+    @JoinColumn(name = "checkpoint_session_id")
+    var checkpointSession: CheckpointSession = checkpointSession
 
     var groupUserId: Long = 0
 
