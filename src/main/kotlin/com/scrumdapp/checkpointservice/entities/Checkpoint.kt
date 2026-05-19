@@ -4,25 +4,23 @@ import jakarta.persistence.*
 import java.io.Serializable
 
 @Embeddable
-data class CheckPointId(val groupUserId: Int = 0, val checkpointSessionId: Int = 0) : Serializable
+data class CheckPointId(val groupUserId: Long = 0, val checkpointSessionId: Long = 0) : Serializable
 
 @Entity
 @Table(name = "check_point")
-class Checkpoint {
+class Checkpoint(checkpointSession: CheckpointSession) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(nullable = false)
-    val id: Long? = null
-
-    @Column(name = "checkpoint_session_id", insertable = false, updatable = false)
-    var checkpointSessionId: Int? = null
+    val id: Long = 0
 
     @ManyToOne
     @JoinColumn(name = "checkpoint_session_id")
-    var checkpointSession: CheckpointSession? = null
+    var checkpointSession: CheckpointSession = checkpointSession
 
-    var groupUserId: Int? = null
+    var groupUserId: Long = 0
+
 
     @Column(columnDefinition = "TEXT")
     var impediment: String? = null

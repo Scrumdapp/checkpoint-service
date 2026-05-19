@@ -1,14 +1,14 @@
 package com.scrumdapp.checkpointservice.controllers
 
+import com.scrumdapp.checkpointservice.configs.BadRequestException
+import com.scrumdapp.checkpointservice.configs.NotFoundException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
-import com.scrumdapp.checkpointservice.dto.CheckpointSessionPartialDto
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
-import com.scrumdapp.checkpointservice.dto.SessionResponseDto
-import com.scrumdapp.checkpointservice.entities.CheckpointSession
-import com.scrumdapp.checkpointservice.mappers.toDto
-import com.scrumdapp.checkpointservice.mappers.toPartialDto
 import com.scrumdapp.checkpointservice.services.CheckpointSessionService
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
+import org.springframework.format.annotation.DateTimeFormat
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,67 +16,59 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import tools.jackson.databind.ObjectMapper
-import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalTime
 
 @RestController
-@RequestMapping("/sessions")
+@RequestMapping("/groups/{groupId}/sessions")
 class CheckpointSessionController(
     private val sessionService: CheckpointSessionService
 ) {
 
-    @GetMapping("/{groupId}")
-    fun getSessions(
-        @PathVariable groupId: Int,
-        @RequestParam(required = false) onlyActive: Boolean?
+    @GetMapping
+    fun getSessionsBetweenDates(
+        @PathVariable groupId: Long,
+        @RequestParam(required = false) onlyActive: Boolean?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate?
     ): List<CheckpointSessionResponseDto> {
+        if (from != null && to != null && from.isAfter(to)) {
+            throw BadRequestException(message = "from date must be before to date")
+        }
 
-        return if (onlyActive != null && onlyActive) {
-            sessionService.getActiveSessions(groupId).map { it.toDto() }
-        } else {
-            sessionService.getSessions(groupId).map { it.toDto() }
+        return when {
+            onlyActive == true -> sessionService.getActiveSessions(groupId, date)
+            from != null && to != null -> sessionService.getSessionsBetweenDates(groupId, from, to)
+            else -> sessionService.getSessions(groupId, date)
         }
     }
 
-    @PostMapping("/{groupId}")
-    fun createSession(
-        //To Do: Add interceptor for header information here
-        @PathVariable groupId: Int,
-        @RequestBody dto: CheckpointSessionCreationDto
-    ): CheckpointSessionResponseDto {
-        println(dto)
-        return sessionService.createSession(groupId, 1, dto).toDto()
+
+
+    @GetMapping("/on-date")
+    fun getSessionsOnDate(
+        @PathVariable groupId: Long,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate
+    ): List<CheckpointSessionResponseDto> {
+        return sessionService.getSessionOnDate(groupId, date)
     }
-
-
-    @GetMapping("/{groupId}/{sessionId}")
+    @GetMapping("/{sessionId}")
     fun getSession(
-        @PathVariable groupId: Int,
-        @PathVariable sessionId: Int,
-        @RequestParam(required = false) partial: Boolean?
-    ): SessionResponseDto {
-        val session = sessionService.getSession(groupId, sessionId) ?: //will modify this with an actual error
-        return CheckpointSessionPartialDto(
-            id = 5,
-            startTime = LocalTime.now(),
-            endTime = LocalTime.now(),
-            remainingTime = 69
-        )
-
-        return if (partial != null && partial) {
-            session.toPartialDto()
-        } else {
-            session.toDto()
-        }
+        @PathVariable groupId: Long,
+        @PathVariable sessionId: Long
+    ): CheckpointSessionResponseDto {
+        return sessionService.getSession(groupId, sessionId)
+            ?: throw NotFoundException(message = "session with $sessionId not found")
     }
 
-    @PostMapping("/{groupId}/test")
-    fun updateSession(
-        @PathVariable groupId: Int,
-        @RequestBody meh: String
-    ): String {
-        return meh
+    @PostMapping
+    fun createSession(
+        res: HttpServletResponse,
+        //To Do: Add interceptor for header information here
+        @PathVariable groupId: Long,
+        @Valid @RequestBody dto: CheckpointSessionCreationDto
+    ): CheckpointSessionResponseDto {
+        res.status = HttpStatus.CREATED.value()
+        return sessionService.createSession(groupId, 1, dto)
     }
 }
