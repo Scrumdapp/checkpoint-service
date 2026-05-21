@@ -32,14 +32,10 @@ public class SecurityConfiguration(
             .csrf { it.disable() }
             .usePassport(passportAuthFilter)
             .authorizeHttpRequests {
-                it.requestMatchers("/users/@me").hasAnyRole("STUDENT", "COACH")
-                it.requestMatchers(HttpMethod.GET, "/users/{userId}").hasAnyAuthority("STUDENT", "COACH", "GATEWAY")
-                it.requestMatchers("/users/gateway").hasAuthority("GATEWAY")
-                it.requestMatchers("/users/{userId}/role").hasAuthority("GATEWAY")
-                it.requestMatchers("/groups/*/sessions/**").hasAnyRole("STUDENT", "COACH")
-                it.requestMatchers("/groups/*/sessions").hasAnyRole("STUDENT", "COACH")
-                it.requestMatchers("/groups/*/checkpoints/**").hasAnyRole("STUDENT", "COACH")
-                it.requestMatchers("/groups/*/checkpoints").hasAnyRole("STUDENT", "COACH")
+                it.requestMatchers("/groups/*/sessions/**").hasAnyAuthority("STUDENT", "COACH")
+                it.requestMatchers("/groups/*/sessions").hasAnyAuthority("STUDENT", "COACH")
+                it.requestMatchers("/groups/*/checkpoints/**").hasAnyAuthority("STUDENT", "COACH")
+                it.requestMatchers("/groups/*/checkpoints").hasAnyAuthority("STUDENT", "COACH")
 
                 it.anyRequest().denyAll()
             }
