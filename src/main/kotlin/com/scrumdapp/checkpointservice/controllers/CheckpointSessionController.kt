@@ -50,17 +50,6 @@ class CheckpointSessionController(
         }
     }
 
-    @GetMapping("/on-date")
-    fun getSessionsOnDate(
-        @Passport passport: PassportContent,
-        @PathVariable groupId: Long,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate
-    ): List<CheckpointSessionResponseDto> {
-        passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
-
-        return sessionService.getSessionOnDate(groupId, date)
-    }
 
     @GetMapping("/{sessionId}")
     fun getSession(

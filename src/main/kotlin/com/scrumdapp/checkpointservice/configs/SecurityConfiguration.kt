@@ -34,24 +34,19 @@ public class SecurityConfiguration(
             .authorizeHttpRequests {
                 it.requestMatchers("/groups/*/sessions/**").hasAnyAuthority("STUDENT", "COACH")
                 it.requestMatchers("/groups/*/sessions").hasAnyAuthority("STUDENT", "COACH")
-                it.requestMatchers("/groups/*/checkpoints/**").hasAnyAuthority("STUDENT", "COACH")
-                it.requestMatchers("/groups/*/checkpoints").hasAnyAuthority("STUDENT", "COACH")
-
-                it.anyRequest().denyAll()
+                it.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+            }
+            .exceptionHandling {
+                it.authenticationEntryPoint(customAuthEntryPoint)
+                it.accessDeniedHandler { _, response, _ ->
+                    response.status = HttpServletResponse.SC_FORBIDDEN
+                }
             }
 
         return http.build()
     }
-    }
+}
 
-
-        private fun createRequestMatcher(auth: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
-            auth
-                .requestMatchers("/groups/*/sessions/**").permitAll()
-                .requestMatchers("/groups/*/checkpoints/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().denyAll()
-        }
 
 
 
