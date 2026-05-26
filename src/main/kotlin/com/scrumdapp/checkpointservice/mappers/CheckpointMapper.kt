@@ -9,7 +9,7 @@ fun Checkpoint.toDto(): CheckpointResponseDto {
     return CheckpointResponseDto(
         id = this.id,
         sessionId = this.checkpointSession.id,
-        groupUserId = this.groupUserId,
+        groupUser = this.groupUserId,
         presence = this.presence,
         impediment = this.impediment,
         stars = this.stars,

@@ -37,6 +37,22 @@ class CheckpointController(
         }
     }
 
+    @GetMapping("/{sessionId}")
+    fun getCheckpointBySession(
+        @Passport passport: PassportContent,
+        @PathVariable groupId: Long,
+        @PathVariable sessionId: Long
+    ): List<CheckpointResponseDto> {
+        val userId = passport.userId.toLong()
+        val userGroupId = passport.userGroups?.find { it.toLong() == groupId }?.toLong()
+            ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
+
+        return checkPointService.findAllBySessionIdAndGroupUserId(sessionId, userId)
+    }
+
+
+
+
     @PatchMapping("/{sessionId}")
     fun updateCheckpoints(
         @Passport passport: PassportContent,
