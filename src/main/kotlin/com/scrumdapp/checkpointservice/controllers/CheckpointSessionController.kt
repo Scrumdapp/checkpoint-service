@@ -5,6 +5,8 @@ import com.scrumdapp.checkpointservice.configs.NotFoundException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
 import com.scrumdapp.checkpointservice.services.CheckpointSessionService
+import com.scrumdapp.passportplugin.annotations.Passport
+import com.scrumdapp.passportplugin.jwt.PassportContent
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.format.annotation.DateTimeFormat
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 
 @RestController
@@ -26,12 +29,16 @@ class CheckpointSessionController(
 
     @GetMapping
     fun getSessionsBetweenDates(
+        @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @RequestParam(required = false) onlyActive: Boolean?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate?
     ): List<CheckpointSessionResponseDto> {
+        passport.userGroups?.find { it.toLong() == groupId }
+            ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
+
         if (from != null && to != null && from.isAfter(to)) {
             throw BadRequestException(message = "from date must be before to date")
         }
@@ -44,31 +51,30 @@ class CheckpointSessionController(
     }
 
 
-
-    @GetMapping("/on-date")
-    fun getSessionsOnDate(
-        @PathVariable groupId: Long,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate
-    ): List<CheckpointSessionResponseDto> {
-        return sessionService.getSessionOnDate(groupId, date)
-    }
     @GetMapping("/{sessionId}")
     fun getSession(
+        @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long
     ): CheckpointSessionResponseDto {
+        passport.userGroups?.find { it.toLong() == groupId }
+            ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
+
         return sessionService.getSession(groupId, sessionId)
             ?: throw NotFoundException(message = "session with $sessionId not found")
     }
 
     @PostMapping
     fun createSession(
+        @Passport passport: PassportContent,
         res: HttpServletResponse,
-        //To Do: Add interceptor for header information here
         @PathVariable groupId: Long,
         @Valid @RequestBody dto: CheckpointSessionCreationDto
     ): CheckpointSessionResponseDto {
+        passport.userGroups?.find { it.toLong() == groupId }
+            ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
+
         res.status = HttpStatus.CREATED.value()
-        return sessionService.createSession(groupId, 1, dto)
+        return sessionService.createSession(groupId, passport.userId.toLong(), dto)
     }
 }
