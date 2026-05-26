@@ -1,6 +1,8 @@
 package com.scrumdapp.checkpointservice.configs
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.scrumdapp.passportplugin.filters.PassportAuthFilter
+import com.scrumdapp.passportplugin.filters.usePassport
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
@@ -10,7 +12,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
-import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.http.HttpMethod
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
@@ -20,14 +22,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration(
-    private val customAuthEntryPoint: CustomAuthEntryPoint
+    private val customAuthEntryPoint: CustomAuthEntryPoint,
+    private val passportAuthFilter: PassportAuthFilter
 ): WebMvcConfigurer {
 
     @Bean
-    public fun filterChain(httpSec: HttpSecurity): SecurityFilterChain {
-        httpSec
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http
             .csrf { it.disable() }
-            .authorizeHttpRequests(this::createRequestMatcher)
+            .usePassport(passportAuthFilter)
+            .authorizeHttpRequests {
+                it.requestMatchers("/groups/{groupId}/sessions/**").hasAnyAuthority("STUDENT", "COACH")
+                it.requestMatchers("/groups/{groupId}/checkpoints/**").hasAnyAuthority("STUDENT", "COACH")
+                it.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+            }
             .exceptionHandling {
                 it.authenticationEntryPoint(customAuthEntryPoint)
                 it.accessDeniedHandler { _, response, _ ->
@@ -35,18 +43,11 @@ public class SecurityConfiguration(
                 }
             }
 
-        return httpSec.build()
+        return http.build()
     }
+}
 
 
-        private fun createRequestMatcher(auth: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
-            auth
-                .requestMatchers("/groups/*/sessions/**").permitAll()
-                .requestMatchers("/groups/*/checkpoints/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().denyAll()
-        }
-    }
 
 
 // Move this to another file
