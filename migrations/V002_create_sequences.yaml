@@ -1,0 +1,8 @@
+operations:
+  - sql:
+      up: |
+        CREATE SEQUENCE IF NOT EXISTS checkpoint_sessions_seq START WITH 1 INCREMENT BY 50;
+        CREATE SEQUENCE IF NOT EXISTS check_point_seq START WITH 1 INCREMENT BY 50;
+      down: |
+        DROP SEQUENCE checkpoint_sessions_seq;
+        DROP SEQUENCE check_point_seq;
