@@ -32,8 +32,8 @@ public class SecurityConfiguration(
             .csrf { it.disable() }
             .usePassport(passportAuthFilter)
             .authorizeHttpRequests {
-                it.requestMatchers("/groups/*/sessions/**").hasAnyAuthority("STUDENT", "COACH")
-                it.requestMatchers("/groups/*/sessions").hasAnyAuthority("STUDENT", "COACH")
+                it.requestMatchers("/groups/{groupId}/sessions/**").hasAnyAuthority("STUDENT", "COACH")
+                it.requestMatchers("/groups/{groupId}/checkpoints/**").hasAnyAuthority("STUDENT", "COACH")
                 it.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
             }
             .exceptionHandling {
