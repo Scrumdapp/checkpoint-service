@@ -18,7 +18,11 @@ java {
 
 repositories {
     mavenCentral()
-}
+    maven {
+        name = "reposiliteRepositoryReleases"
+        url = uri("https://maven.pkgs.scrumdapp.com/releases")
+    }
+}   
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
