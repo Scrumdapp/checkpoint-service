@@ -14,12 +14,10 @@ fun CheckpointSession.toDto(checkpoints: List<Checkpoint>): CheckpointSessionRes
         id = this.id,
         groupId = this.groupId,
         ownerId = this.groupUserId,
-        createdDate = this.createdDate,
+        date = this.createdDate,
         startTime = this.startTime,
         name = this.name,
-        duration = this.durationMinutes.toLong(),
-        checkpoints = checkpoints.map { it.toDto() }
-
+        duration = this.durationMinutes.toLong()
     )
 }
 

@@ -20,8 +20,7 @@ data class CheckpointSessionResponseDto(
     override val duration: Long,
     val groupId: Long,
     val ownerId: Long,
-    val createdDate: LocalDate,
-    val checkpoints: List<CheckpointResponseDto>,
+    val date: LocalDate,
     val name: String?,
 ): SessionResponseDto
 

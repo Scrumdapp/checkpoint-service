@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 data class CheckpointResponseDto(
     val id: Long,
     val sessionId: Long,
-    val groupUserId: Long,
+    val groupUser: Long,
     val presence: Int?,
     val impediment: String?,
     val stars: Int?,
@@ -16,7 +16,7 @@ data class CheckpointResponseDto(
 )
 
 data class CheckpointPatchDto(
-    val groupUserId: Int,
+    val userId: Int,
     val presence: Int?,
     val impediment: String?,
     val stars: Int?,
