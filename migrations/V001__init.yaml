@@ -1,0 +1,57 @@
+operations:
+  - create_table:
+      columns:
+        - name: id
+          type: bigint
+        - name: group_id
+          type: bigint
+        - name: group_user_id
+          type: bigint
+        - name: created_date
+          nullable: true
+          type: date
+        - name: start_time
+          nullable: true
+          type: time
+        - name: duration_minutes
+          type: int
+      constraints:
+        - columns:
+            - id
+          name: pk_checkpoint_sessions
+          type: primary_key
+      name: checkpoint_sessions
+  - create_table:
+      columns:
+        - name: id
+          type: bigint
+        - name: checkpoint_session_id
+          nullable: true
+          type: bigint
+          references:
+            name: fk_check_point_on_checkpoint_session
+            column: id
+            table: checkpoint_sessions
+            on_update: CASCADE
+            on_delete: CASCADE
+        - name: group_user_id
+          nullable: true
+          type: bigint
+        - name: impediment
+          nullable: true
+          type: text
+        - name: presence
+          nullable: true
+          type: int
+        - name: stars
+          nullable: true
+          type: int
+        - name: comment
+          nullable: true
+          type: text
+      constraints:
+        - columns:
+            - id
+          name: pk_check_point
+          type: primary_key
+      name: check_point
