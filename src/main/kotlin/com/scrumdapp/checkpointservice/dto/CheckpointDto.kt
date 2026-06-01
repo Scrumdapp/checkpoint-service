@@ -20,26 +20,18 @@ enum class Presence(val code: Int) {
 data class CheckpointResponseDto(
     val id: Long,
     val sessionId: Long,
-<<<<<<< Updated upstream
     val groupUser: Long,
-    val presence: Int?,
-=======
     val groupUserId: Long,
     val presence: Presence?,
->>>>>>> Stashed changes
     val impediment: String?,
     val stars: Int?,
     val comment: String?,
 )
 
 data class CheckpointPatchDto(
-<<<<<<< Updated upstream
     val userId: Int,
-    val presence: Int?,
-=======
     val groupUserId: Int,
     val presence: Presence?,
->>>>>>> Stashed changes
     val impediment: String?,
     val stars: Int?,
     val comment: String?,
