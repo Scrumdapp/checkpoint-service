@@ -21,7 +21,6 @@ data class CheckpointResponseDto(
     val id: Long,
     val sessionId: Long,
     val groupUser: Long,
-    val groupUserId: Long,
     val presence: Presence?,
     val impediment: String?,
     val stars: Int?,
@@ -29,8 +28,7 @@ data class CheckpointResponseDto(
 )
 
 data class CheckpointPatchDto(
-    val userId: Int,
-    val groupUserId: Int,
+    val groupUser: Long,
     val presence: Presence?,
     val impediment: String?,
     val stars: Int?,
