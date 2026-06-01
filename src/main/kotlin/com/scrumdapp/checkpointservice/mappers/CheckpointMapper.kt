@@ -10,13 +10,8 @@ fun Checkpoint.toDto(): CheckpointResponseDto {
     return CheckpointResponseDto(
         id = this.id,
         sessionId = this.checkpointSession.id,
-<<<<<<< Updated upstream
         groupUser = this.groupUserId,
-        presence = this.presence,
-=======
-        groupUserId = this.groupUserId,
         presence = this.presence?.let { Presence.fromCode(it) },
->>>>>>> Stashed changes
         impediment = this.impediment,
         stars = this.stars,
         comment = this.comment
