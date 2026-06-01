@@ -47,7 +47,7 @@ class CheckpointController(
         val userGroupId = passport.userGroups?.find { it.toLong() == groupId }?.toLong()
             ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
 
-        return checkPointService.findAllBySessionIdAndGroupUserId(sessionId, userId)
+        return checkPointService.findAllBySessionId(sessionId)
     }
 
 
