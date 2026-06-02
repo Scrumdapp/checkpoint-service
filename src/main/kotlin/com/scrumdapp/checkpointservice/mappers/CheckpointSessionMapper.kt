@@ -9,7 +9,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
 
-fun CheckpointSession.toDto(checkpoints: List<Checkpoint>): CheckpointSessionResponseDto {
+fun CheckpointSession.toDto(): CheckpointSessionResponseDto {
     return CheckpointSessionResponseDto(
         id = this.id,
         groupId = this.groupId,
@@ -39,10 +39,12 @@ fun CheckpointSession.toPartialDto(): CheckpointSessionPartialDto {
 fun CheckpointSessionCreationDto.toEntity(
     groupId: Long,
     ownerId: Long,
+    name: String?
 ): CheckpointSession {
     return CheckpointSession().apply {
         this.groupId = groupId
         this.groupUserId = ownerId
+        this.name = name
         durationMinutes = this@toEntity.duration ?: 15
     }
 }

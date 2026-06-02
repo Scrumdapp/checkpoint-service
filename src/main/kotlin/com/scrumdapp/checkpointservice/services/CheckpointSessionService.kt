@@ -29,8 +29,7 @@ class CheckpointSessionService(
         }
         val response = mutableListOf<CheckpointSessionResponseDto>()
         for (session in sessions) {
-            val checkpoints = checkpointRepository.findAllByCheckpointSessionId(session.id)
-            response.add(session.toDto(checkpoints))
+            response.add(session.toDto())
         }
 
         return response.toList()
@@ -51,8 +50,7 @@ class CheckpointSessionService(
 
         val response = mutableListOf<CheckpointSessionResponseDto>()
         for (session in filteredSessions) {
-            val checkpoints = checkpointRepository.findAllByCheckpointSessionId(session.id)
-            response.add(session.toDto(checkpoints))
+            response.add(session.toDto())
         }
 
         return response.toList()
@@ -61,16 +59,14 @@ class CheckpointSessionService(
     fun getSession(groupId: Long, id: Long): CheckpointSessionResponseDto? {
         val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: throw NotFoundException(message = "Checkpoint with id $id not found")
 
-        val checkpoints = checkpointRepository.findAllByCheckpointSessionId(session.id)
 
-        return session.toDto(checkpoints)
+        return session.toDto()
     }
     fun getSessionsBetweenDates(groupId: Long, startDate: LocalDate, endDate: LocalDate): List<CheckpointSessionResponseDto> {
         val sessions = checkpointSessionRepository.findAllByGroupIdAndCreatedDateBetween(groupId, startDate, endDate)
         val response = mutableListOf<CheckpointSessionResponseDto>()
         for (session in sessions) {
-            val checkpoints = checkpointRepository.findAllByCheckpointSessionId(session.id)
-            response.add(session.toDto(checkpoints))
+            response.add(session.toDto())
         }
         return response.toList()
     }
@@ -79,8 +75,7 @@ class CheckpointSessionService(
         val sessions = checkpointSessionRepository.findAllByGroupIdAndCreatedDate(groupId, date)
         val response = mutableListOf<CheckpointSessionResponseDto>()
         for (session in sessions) {
-            val checkpoints = checkpointRepository.findAllByCheckpointSessionId(session.id)
-            response.add(session.toDto(checkpoints))
+            response.add(session.toDto())
         }
         return response.toList()
     }
@@ -90,8 +85,8 @@ class CheckpointSessionService(
     }
 
     fun createSession(groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): CheckpointSessionResponseDto {
-        val checkpointSession = dto.toEntity(groupId, ownerId)
-        return checkpointSessionRepository.save(checkpointSession).toDto(emptyList())
+        val checkpointSession = dto.toEntity(groupId, ownerId, dto.name)
+        return checkpointSessionRepository.save(checkpointSession).toDto()
     }
 
     fun disableSession(id: Long, userId: Long): CheckpointSessionResponseDto {
@@ -102,8 +97,6 @@ class CheckpointSessionService(
         // Disables the session by forcing the remaining time to 0
         session.durationMinutes = 0
         val newSession = checkpointSessionRepository.save(session)
-
-        val checkpoints = checkpointRepository.findAllByCheckpointSessionId(session.id)
-        return newSession.toDto(checkpoints)
+        return newSession.toDto()
     }
 }

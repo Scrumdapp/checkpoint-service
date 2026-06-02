@@ -9,7 +9,6 @@ import java.time.LocalTime
 @Table(name = "checkpoint_sessions")
 class CheckpointSession {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(nullable = false)
@@ -22,6 +21,7 @@ class CheckpointSession {
 
     var startTime: LocalTime = LocalTime.now()
     var durationMinutes: Int = 15
+
     var name: String? = null
 
 

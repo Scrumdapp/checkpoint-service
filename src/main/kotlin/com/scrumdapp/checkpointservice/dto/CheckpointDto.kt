@@ -13,6 +13,7 @@ enum class Presence(val code: Int) {
 
     companion object {
         fun fromCode(code: Int): Presence? = entries.find { it.code == code }
+        fun fromString(value: String?): Presence? = value?.let { valueOf(value) }
     }
 }
 
@@ -29,7 +30,7 @@ data class CheckpointResponseDto(
 
 data class CheckpointPatchDto(
     val groupUser: Long,
-    val presence: Presence?,
+    val presence: String?,
     val impediment: String?,
     val stars: Int?,
     val comment: String?,

@@ -18,20 +18,26 @@ fun Checkpoint.toDto(): CheckpointResponseDto {
     )
 }
 
-fun Checkpoint.applyPatch(dto: CheckpointPatchDto) = apply {
-    dto.presence?.let { presence = it.code }
-    dto.impediment?.let { impediment = it.trim() }
-    dto.stars?.let { stars = it }
-    dto.comment?.let { comment = it.trim() }
+fun Checkpoint.applyPatch(dto: CheckpointPatchDto): Checkpoint {
+
+    val presence = Presence.fromString(dto.presence)
+
+    return apply {
+        dto.presence?.let { presence }
+        dto.impediment?.let { impediment = it.trim() }
+        dto.stars?.let { stars = it }
+        dto.comment?.let { comment = it.trim() }
+    }
 }
 
 fun CheckpointPatchDto.toEntity(
     session: CheckpointSession,
     userId: Long
 ): Checkpoint {
+
     return Checkpoint(session).apply {
         groupUserId = userId
-        presence = this@toEntity.presence?.code
+        presence = Presence.fromString(this@toEntity.presence)?.code
         impediment = this@toEntity.impediment
         stars = this@toEntity.stars
         comment = this@toEntity.comment
