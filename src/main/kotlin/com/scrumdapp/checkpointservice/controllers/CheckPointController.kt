@@ -5,7 +5,9 @@ import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
 import com.scrumdapp.checkpointservice.services.CheckPointService
 import com.scrumdapp.passportplugin.annotations.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
+@Validated
 @RequestMapping("/groups/{groupId}/checkpoints")
 class CheckpointController(
     private val checkPointService: CheckPointService
@@ -50,15 +53,12 @@ class CheckpointController(
         return checkPointService.findAllBySessionId(sessionId)
     }
 
-
-
-
     @PatchMapping("/{sessionId}")
     fun updateCheckpoints(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long,
-        @RequestBody dto: List<CheckpointPatchDto>
+        @Valid @RequestBody dto: List<CheckpointPatchDto>
     ): List<CheckpointResponseDto> {
         val userId = passport.userId.toLong()
         val userGroupId = passport.userGroups?.find { it.toLong() == groupId }?.toLong()
