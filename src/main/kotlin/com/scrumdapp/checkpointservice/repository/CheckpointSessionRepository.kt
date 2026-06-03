@@ -11,4 +11,5 @@ interface CheckpointSessionRepository: JpaRepository<CheckpointSession, Int> {
     fun findAllByGroupId(groupId: Long): List<CheckpointSession>
     fun findAllByGroupIdAndCreatedDate(groupId: Long, createDate: LocalDate?): List<CheckpointSession>
     fun findAllByGroupIdAndCreatedDateBetween(groupId: Long, startDate: LocalDate, endDate: LocalDate): List<CheckpointSession>
+    fun existsById(id: Long): Boolean
 }
