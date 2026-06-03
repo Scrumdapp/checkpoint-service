@@ -39,6 +39,6 @@ data class CheckpointSessionCreationDto(
     val duration: Int? = null,
 
     @field:Size(max = 32, message = "Name cannot exceed 32 characters")
-    @field:Pattern(regexp = "^[a-zA-Z0-9 -]*$", message = "Name can only contain letters, numbers, spaces and hyphens")
+    @field:Pattern(regexp = "^[a-zA-Z0-9 \\-]*$", message = "Name can only contain letters, numbers, spaces and hyphens")
     val name: String? = null
 )
