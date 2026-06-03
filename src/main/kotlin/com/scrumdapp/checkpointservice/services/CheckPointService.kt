@@ -47,7 +47,7 @@ class CheckPointService(
     }
 
     fun findAllBySessionId(sessionId: Long): List<CheckpointResponseDto> {
-        if (!checkpointRepository.existsByCheckpointSessionId(sessionId)) throw NotFoundException(message = "No checkpoints found for session $sessionId")
+        if (!checkpointSessionRepository.existsById(sessionId)) throw NotFoundException(message = "No checkpoints found for session $sessionId")
         return checkpointRepository.findAllByCheckpointSessionId(sessionId).map { it.toDto() }
     }
     
