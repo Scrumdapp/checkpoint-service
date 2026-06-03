@@ -2,11 +2,13 @@ package com.scrumdapp.checkpointservice.configs
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Component
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
+@Component
 class ExceptionHandler {
 
     @ExceptionHandler(ApiException::class)
