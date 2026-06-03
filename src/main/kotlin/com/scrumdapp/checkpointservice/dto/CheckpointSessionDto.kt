@@ -38,7 +38,7 @@ data class CheckpointSessionCreationDto(
     @JsonProperty("duration")
     val duration: Int? = null,
 
-    @field:Size(max = 40, message = "Name cannot exceed 40 characters")
-    @field:Pattern(regexp = "^[a-zA-Z0-9 ]*$", message = "Name can only contain letters, numbers and spaces")
+    @field:Size(max = 32, message = "Name cannot exceed 32 characters")
+    @field:Pattern(regexp = "^[a-zA-Z0-9 \\-]*$", message = "Name can only contain letters, numbers, spaces and hyphens")
     val name: String? = null
 )
