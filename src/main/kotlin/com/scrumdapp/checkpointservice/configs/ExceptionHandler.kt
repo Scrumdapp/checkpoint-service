@@ -18,18 +18,6 @@ class ExceptionHandler {
         return ResponseEntity.status(e.code).body(ApiExceptionResponse(e.code, e.message))
     }
 
-
-    @ExceptionHandler(ConstraintViolationException::class)
-    fun handleConstraintException(e: ConstraintViolationException): ResponseEntity<ApiExceptionResponse> {
-        val violations = e.constraintViolations
-        val builder = StringBuilder()
-        for (violation in violations) {
-            val error = "${violation.invalidValue}: ${violation.message}. "
-            builder.append(error)
-        }
-        return ResponseEntity.status(400).body(ApiExceptionResponse(400, builder.toString()))
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationException(e: MethodArgumentNotValidException): ResponseEntity<ApiExceptionResponse> {
         val message = e.bindingResult.fieldErrors

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
-@Validated
 @RequestMapping("/groups/{groupId}/checkpoints")
 class CheckpointController(
     private val checkPointService: CheckPointService
@@ -58,12 +57,11 @@ class CheckpointController(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long,
-        @Valid @RequestBody dto: List<CheckpointPatchDto>
-    ): List<CheckpointResponseDto> {
-        val userId = passport.userId.toLong()
+        @Valid @RequestBody dto: CheckpointPatchDto
+    ): CheckpointResponseDto{
         val userGroupId = passport.userGroups?.find { it.toLong() == groupId }?.toLong()
             ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
 
-        return dto.map { checkPointService.upsertCheckpoint(sessionId, userGroupId, userId, it) }
+        return checkPointService.upsertCheckpoint(sessionId, userGroupId, dto, passport.userId.toLong())
     }
 }

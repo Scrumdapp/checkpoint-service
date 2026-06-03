@@ -20,10 +20,10 @@ fun Checkpoint.toDto(): CheckpointResponseDto {
 
 fun Checkpoint.applyPatch(dto: CheckpointPatchDto): Checkpoint {
 
-    val presence = Presence.fromString(dto.presence)
+    val entityPresence = Presence.fromString(dto.presence)
 
     return apply {
-        dto.presence?.let { presence }
+        dto.presence?.let { presence = entityPresence?.code}
         dto.impediment?.let { impediment = it.trim() }
         dto.stars?.let { stars = it }
         dto.comment?.let { comment = it.trim() }

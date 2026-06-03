@@ -9,14 +9,14 @@ import java.time.LocalTime
 
 sealed interface SessionResponseDto {
     val id: Long
-    val startTime: LocalTime
+    val startTime: String
     val duration: Long
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CheckpointSessionResponseDto(
     override val id: Long,
-    override val startTime: LocalTime,
+    override val startTime: String,
     override val duration: Long,
     val groupId: Long,
     val ownerId: Long,
@@ -27,7 +27,7 @@ data class CheckpointSessionResponseDto(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CheckpointSessionPartialDto(
     override val id: Long,
-    override val startTime: LocalTime,
+    override val startTime: String,
     override val duration: Long,
     val remainingTime: Long,
 ): SessionResponseDto
