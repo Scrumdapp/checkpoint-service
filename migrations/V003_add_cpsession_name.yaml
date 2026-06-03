@@ -1,0 +1,7 @@
+operations:
+  - add_column:
+      table: checkpoint_sessions
+      column:
+        name: name
+        type: varchar(255)
+        nullable: true
