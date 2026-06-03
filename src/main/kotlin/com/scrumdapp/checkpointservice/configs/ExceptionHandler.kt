@@ -1,9 +1,7 @@
 package com.scrumdapp.checkpointservice.configs
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import jakarta.validation.ConstraintViolationException
 import org.springframework.http.ResponseEntity
-import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
