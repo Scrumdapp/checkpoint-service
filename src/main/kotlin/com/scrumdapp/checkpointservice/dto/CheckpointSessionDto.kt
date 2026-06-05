@@ -17,7 +17,6 @@ sealed interface SessionResponseDto {
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CheckpointSessionResponseDto(
     override val id: Long,
-    @JsonFormat(pattern = "HH:mm:ss")
     override val startTime: String,
     override val duration: Long,
     val groupId: Long,
