@@ -1,12 +1,11 @@
 package com.scrumdapp.checkpointservice.dto
 
-import com.fasterxml.jackson.annotation.JsonFormat
+
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
-import java.time.LocalDate
-import java.time.LocalTime
+
 
 sealed interface SessionResponseDto {
     val id: Long
