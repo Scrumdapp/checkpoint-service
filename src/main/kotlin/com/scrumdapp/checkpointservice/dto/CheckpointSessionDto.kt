@@ -10,7 +10,7 @@ import java.time.LocalTime
 
 sealed interface SessionResponseDto {
     val id: Long
-    val startTime: LocalTime
+    val startTime: String
     val duration: Long
 }
 
@@ -18,7 +18,7 @@ sealed interface SessionResponseDto {
 data class CheckpointSessionResponseDto(
     override val id: Long,
     @JsonFormat(pattern = "HH:mm:ss")
-    override val startTime: LocalTime,
+    override val startTime: String,
     override val duration: Long,
     val groupId: Long,
     val ownerId: Long,
@@ -28,8 +28,7 @@ data class CheckpointSessionResponseDto(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CheckpointSessionPartialDto(
     override val id: Long,
-    @JsonFormat(pattern = "HH:mm:ss")
-    override val startTime: LocalTime,
+    override val startTime: String,
     override val duration: Long,
     val remainingTime: Long,
 ): SessionResponseDto
@@ -39,6 +38,6 @@ data class CheckpointSessionCreationDto(
     val duration: Int? = null,
 
     @field:Size(max = 32, message = "Name cannot exceed 32 characters")
-    @field:Pattern(regexp = "^[a-zA-Z0-9 ]*$", message = "Name can only contain letters, numbers and spaces")
+    @field:Pattern(regexp = "^[a-zA-Z0-9 \\-]*$", message = "Name can only contain letters, numbers, spaces and hyphens")
     val name: String? = null
 )
