@@ -1,11 +1,11 @@
 package com.scrumdapp.checkpointservice.dto
 
+
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
-import java.time.LocalDate
-import java.time.LocalTime
+
 
 sealed interface SessionResponseDto {
     val id: Long
@@ -20,7 +20,6 @@ data class CheckpointSessionResponseDto(
     override val duration: Long,
     val groupId: Long,
     val ownerId: Long,
-    val date: LocalDate,
     val name: String?,
 ): SessionResponseDto
 
@@ -31,8 +30,6 @@ data class CheckpointSessionPartialDto(
     override val duration: Long,
     val remainingTime: Long,
 ): SessionResponseDto
-
-
 
 data class CheckpointSessionCreationDto(
     @JsonProperty("duration")

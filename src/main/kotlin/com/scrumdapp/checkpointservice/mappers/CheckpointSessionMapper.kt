@@ -7,25 +7,28 @@ import com.scrumdapp.checkpointservice.entities.CheckpointSession
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.ZoneId
 
 
 fun CheckpointSession.toDto(): CheckpointSessionResponseDto {
-    val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+    val zonedDateTime = ZonedDateTime.of(this.createdDate, this.startTime, ZoneId.systemDefault())
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssz")
 
     return CheckpointSessionResponseDto(
         id = this.id,
         groupId = this.groupId,
         ownerId = this.groupUserId,
-        date = this.createdDate,
-        startTime = this.startTime.format(formatter),
+        startTime = zonedDateTime.format(formatter),
         name = this.name,
         duration = this.durationMinutes.toLong()
     )
 }
 
 fun CheckpointSession.toPartialDto(): CheckpointSessionPartialDto {
-    val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+    val zonedDateTime = ZonedDateTime.of(this.createdDate, this.startTime, ZoneId.systemDefault())
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssz")
     val endTime = this.startTime.plusMinutes(this.durationMinutes.toLong())
     var remainingTime: Long = 0
     if (this.createdDate == LocalDate.now()) {
@@ -34,7 +37,7 @@ fun CheckpointSession.toPartialDto(): CheckpointSessionPartialDto {
 
     return CheckpointSessionPartialDto(
         id = this.id,
-        startTime = this.startTime.format(formatter),
+        startTime = zonedDateTime.format(formatter),
         duration = this.durationMinutes.toLong(),
         remainingTime = remainingTime
     )
