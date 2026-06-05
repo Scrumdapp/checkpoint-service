@@ -57,11 +57,11 @@ class CheckpointController(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long,
-        @Valid @RequestBody dto: CheckpointPatchDto
-    ): CheckpointResponseDto{
+        @Valid @RequestBody dto: List<CheckpointPatchDto>
+    ): List<CheckpointResponseDto> {
         val userGroupId = passport.userGroups?.find { it.toLong() == groupId }?.toLong()
             ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
 
-        return checkPointService.upsertCheckpoint(sessionId, userGroupId, dto, passport.userId.toLong())
+        return dto.map { checkPointService.upsertCheckpoint(sessionId, userGroupId, it, passport.userId.toLong()) }
     }
 }
