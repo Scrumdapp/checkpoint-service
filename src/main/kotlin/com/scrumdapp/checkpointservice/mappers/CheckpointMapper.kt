@@ -4,7 +4,6 @@ import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
 import com.scrumdapp.checkpointservice.dto.Presence
 import com.scrumdapp.checkpointservice.entities.Checkpoint
-import com.scrumdapp.checkpointservice.entities.CheckpointSession
 
 fun Checkpoint.toDto(): CheckpointResponseDto {
     return CheckpointResponseDto(
@@ -27,19 +26,5 @@ fun Checkpoint.applyPatch(dto: CheckpointPatchDto): Checkpoint {
         dto.impediment?.let { impediment = it.trim() }
         dto.stars?.let { stars = it }
         dto.comment?.let { comment = it.trim() }
-    }
-}
-
-fun CheckpointPatchDto.toEntity(
-    session: CheckpointSession,
-    userId: Long
-): Checkpoint {
-
-    return Checkpoint(session).apply {
-        groupUserId = userId
-        presence = Presence.fromString(this@toEntity.presence)?.code
-        impediment = this@toEntity.impediment
-        stars = this@toEntity.stars
-        comment = this@toEntity.comment
     }
 }

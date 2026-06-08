@@ -1,6 +1,7 @@
-package com.scrumdapp.checkpointservice.configs
+package com.scrumdapp.checkpointservice.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.scrumdapp.checkpointservice.errors.ApiExceptionResponse
 import com.scrumdapp.passportplugin.filters.PassportAuthFilter
 import com.scrumdapp.passportplugin.filters.usePassport
 import jakarta.servlet.http.HttpServletRequest
@@ -11,8 +12,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
-import org.springframework.http.HttpMethod
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
@@ -61,7 +60,9 @@ class CustomAuthEntryPoint: AuthenticationEntryPoint {
         if (response.isCommitted) return
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = MediaType.APPLICATION_JSON_VALUE
-        ObjectMapper().writeValue(response.writer, ApiExceptionResponse(HttpStatus.UNAUTHORIZED.value(), authException.message))
+        ObjectMapper().writeValue(response.writer,
+            ApiExceptionResponse(HttpStatus.UNAUTHORIZED.value(), authException.message)
+        )
     }
 }
 

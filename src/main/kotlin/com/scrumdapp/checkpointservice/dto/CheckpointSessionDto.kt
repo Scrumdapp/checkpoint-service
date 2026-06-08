@@ -1,35 +1,19 @@
 package com.scrumdapp.checkpointservice.dto
 
-
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
-
-sealed interface SessionResponseDto {
-    val id: Long
-    val startTime: String
-    val duration: Long
-}
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CheckpointSessionResponseDto(
-    override val id: Long,
-    override val startTime: String,
-    override val duration: Long,
+    val id: Long,
+    val startTime: String,
+    val duration: Long,
     val groupId: Long,
     val ownerId: Long,
     val name: String?,
-): SessionResponseDto
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class CheckpointSessionPartialDto(
-    override val id: Long,
-    override val startTime: String,
-    override val duration: Long,
-    val remainingTime: Long,
-): SessionResponseDto
+)
 
 data class CheckpointSessionCreationDto(
     @JsonProperty("duration")
