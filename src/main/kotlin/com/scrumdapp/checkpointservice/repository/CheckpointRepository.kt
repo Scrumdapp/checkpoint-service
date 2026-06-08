@@ -22,5 +22,17 @@ interface CheckpointRepository: JpaRepository<Checkpoint, Long> {
         @Param("groupId") groupId: Long,
         @Param("userId") userId: Long,
     ): List<Checkpoint>
+
+    @Query("""
+        SELECT cp
+        FROM Checkpoint cp
+            WHERE cp.groupUserId = :userId
+                AND cp.checkpointSession.groupId = :groupId
+    """)
+    fun findAllUserCheckpoints(
+        @Param("userId") userId: Long,
+        @Param("groupId") groupId: Long,
+    ): List<Checkpoint>
+
     fun findAllByCheckpointSessionId(sessionId: Long): List<Checkpoint>
 }

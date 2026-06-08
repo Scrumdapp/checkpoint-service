@@ -46,6 +46,10 @@ class CheckPointService(
         return checkpoints.map { it.toDto() }
     }
 
+    fun findAllByUserId(userId: Long, groupId: Long): List<CheckpointResponseDto> {
+        return checkpointRepository.findAllUserCheckpoints(userId, groupId).map { it.toDto() }
+    }
+
     private fun checkSessionAge(session: CheckpointSession): Boolean {
         if (session.createdDate != LocalDate.now()) return false
         val endTime = session.startTime.plusMinutes(session.durationMinutes.toLong())

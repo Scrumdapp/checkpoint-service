@@ -27,12 +27,19 @@ class CheckpointController(
         @Passport passport: PassportContent,
         @PathVariable groupId: Int,
         @RequestParam(required = false) session: Long?,
+        @RequestParam(required = false) user: Long?
         ): List<CheckpointResponseDto> {
 
         if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
-        if (session == null) throw BadRequestException(message = "Param session is expected")
 
-        return checkPointService.findAllBySessionId(session, groupId.toLong())
+        return when {
+            session != null && user != null -> {
+                checkPointService.findAllBySessionId(session, groupId.toLong()).filter { it.groupUser == user }
+            }
+            session != null -> checkPointService.findAllBySessionId(session, groupId.toLong())
+            user != null -> checkPointService.findAllByUserId(user, groupId.toLong())
+            else -> throw BadRequestException(message = "At least one parameter must be provided")
+        }
     }
 
     @PatchMapping
