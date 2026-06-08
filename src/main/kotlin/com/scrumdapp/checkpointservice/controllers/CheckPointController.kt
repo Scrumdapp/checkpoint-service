@@ -26,13 +26,13 @@ class CheckpointController(
     fun getCheckpoints(
         @Passport passport: PassportContent,
         @PathVariable groupId: Int,
-        @RequestParam(required = false) sessionId: Long?,
+        @RequestParam(required = false) session: Long?,
         ): List<CheckpointResponseDto> {
 
         if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
-        if (sessionId == null) throw BadRequestException(message = "Param sessionId is expected")
+        if (session == null) throw BadRequestException(message = "Param session is expected")
 
-        return checkPointService.findAllBySessionId(sessionId, groupId.toLong())
+        return checkPointService.findAllBySessionId(session, groupId.toLong())
     }
 
     @PatchMapping
