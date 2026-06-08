@@ -1,14 +1,10 @@
 package com.scrumdapp.checkpointservice.entities
 
 import jakarta.persistence.*
-import java.io.Serializable
-
-@Embeddable
-data class CheckPointId(val groupUserId: Long = 0, val checkpointSessionId: Long = 0) : Serializable
 
 @Entity
 @Table(name = "check_point")
-class Checkpoint(checkpointSession: CheckpointSession) {
+class Checkpoint(session: CheckpointSession, groupUser: Long) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -17,9 +13,9 @@ class Checkpoint(checkpointSession: CheckpointSession) {
 
     @ManyToOne
     @JoinColumn(name = "checkpoint_session_id")
-    var checkpointSession: CheckpointSession = checkpointSession
+    var checkpointSession: CheckpointSession = session
 
-    var groupUserId: Long = 0
+    var groupUserId: Long = groupUser
 
 
     @Column(columnDefinition = "TEXT")

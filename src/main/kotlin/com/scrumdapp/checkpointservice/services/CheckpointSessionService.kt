@@ -1,23 +1,25 @@
 package com.scrumdapp.checkpointservice.services
 
-import com.scrumdapp.checkpointservice.configs.ForbiddenException
-import com.scrumdapp.checkpointservice.configs.NotFoundException
+import com.scrumdapp.checkpointservice.errors.NotFoundException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
-import com.scrumdapp.checkpointservice.dto.CheckpointSessionPartialDto
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
+import com.scrumdapp.checkpointservice.entities.Checkpoint
+import com.scrumdapp.checkpointservice.errors.BadRequestException
+import com.scrumdapp.checkpointservice.groups.GroupRequestService
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.mappers.toEntity
-import com.scrumdapp.checkpointservice.mappers.toPartialDto
 import com.scrumdapp.checkpointservice.repository.CheckpointRepository
 import com.scrumdapp.checkpointservice.repository.CheckpointSessionRepository
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalTime
 
 @Service
 class CheckpointSessionService(
-    val checkpointSessionRepository: CheckpointSessionRepository,
-    val checkpointRepository: CheckpointRepository
+    private val checkpointSessionRepository: CheckpointSessionRepository,
+    private val checkpointRepository: CheckpointRepository,
+    private val groupRequestService: GroupRequestService,
 ) {
 
     fun getSessions(groupId: Long, date: LocalDate?): List<CheckpointSessionResponseDto> {
@@ -57,8 +59,7 @@ class CheckpointSessionService(
     }
 
     fun getSession(groupId: Long, id: Long): CheckpointSessionResponseDto? {
-        val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: throw NotFoundException(message = "Checkpoint with id $id not found")
-
+        val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: throw BadRequestException(message = "Checkpoint with id $id not found")
 
         return session.toDto()
     }
@@ -71,32 +72,15 @@ class CheckpointSessionService(
         return response.toList()
     }
 
-    fun getSessionOnDate(groupId: Long, date: LocalDate): List<CheckpointSessionResponseDto> {
-        val sessions = checkpointSessionRepository.findAllByGroupIdAndCreatedDate(groupId, date)
-        val response = mutableListOf<CheckpointSessionResponseDto>()
-        for (session in sessions) {
-            response.add(session.toDto())
-        }
-        return response.toList()
-    }
-    fun getPartialSession(groupId: Long, id: Long): CheckpointSessionPartialDto? {
-        val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: throw NotFoundException(message = "Checkpoint with id $id not found")
-        return session.toPartialDto()
-    }
-
-    fun createSession(groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): CheckpointSessionResponseDto {
+    fun createSession(jwt: Jwt, groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): CheckpointSessionResponseDto {
         val checkpointSession = dto.toEntity(groupId, ownerId, dto.name)
-        return checkpointSessionRepository.save(checkpointSession).toDto()
-    }
 
-    fun disableSession(id: Long, userId: Long): CheckpointSessionResponseDto {
-        val session = checkpointSessionRepository.findFirstById(id) ?: throw NotFoundException(message = "Checkpoint with id $id not found")
+        val groupUsers = groupRequestService.getGroupUserIds(jwt, groupId)
+        val session = checkpointSessionRepository.save(checkpointSession)
 
-        if (session.groupUserId != userId) throw ForbiddenException(message = "Only the owner of the session can modify it")
-
-        // Disables the session by forcing the remaining time to 0
-        session.durationMinutes = 0
-        val newSession = checkpointSessionRepository.save(session)
-        return newSession.toDto()
+        for (groupUser in groupUsers) {
+            checkpointRepository.save(Checkpoint(session, groupUser))
+        }
+        return session.toDto()
     }
 }

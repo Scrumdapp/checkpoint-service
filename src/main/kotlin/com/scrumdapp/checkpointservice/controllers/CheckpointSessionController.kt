@@ -1,7 +1,8 @@
 package com.scrumdapp.checkpointservice.controllers
 
-import com.scrumdapp.checkpointservice.configs.BadRequestException
-import com.scrumdapp.checkpointservice.configs.NotFoundException
+import com.scrumdapp.checkpointservice.errors.BadRequestException
+import com.scrumdapp.checkpointservice.errors.NotFoundException
+import com.scrumdapp.checkpointservice.errors.ServerFaultException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
 import com.scrumdapp.checkpointservice.services.CheckpointSessionService
@@ -11,6 +12,8 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -76,7 +79,9 @@ class CheckpointSessionController(
         passport.userGroups?.find { it.toLong() == groupId }
             ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
 
+        val jwt = SecurityContextHolder.getContext().authentication?.principal as? Jwt ?: throw ServerFaultException()
+
         res.status = HttpStatus.CREATED.value()
-        return sessionService.createSession(groupId, passport.userId.toLong(), dto)
+        return sessionService.createSession(jwt, groupId, passport.userId.toLong(), dto)
     }
 }
