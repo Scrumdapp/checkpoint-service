@@ -10,13 +10,12 @@ import java.time.ZoneId
 
 fun CheckpointSession.toDto(): CheckpointSessionResponseDto {
     val zonedDateTime = ZonedDateTime.of(this.createdDate, this.startTime, ZoneId.systemDefault())
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssz")
 
     return CheckpointSessionResponseDto(
         id = this.id,
         groupId = this.groupId,
         ownerId = this.groupUserId,
-        startTime = zonedDateTime.format(formatter),
+        startTime = zonedDateTime.format(DateTimeFormatter.ISO_INSTANT),
         name = this.name,
         duration = this.durationMinutes.toLong()
     )
