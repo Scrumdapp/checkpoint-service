@@ -1,17 +1,17 @@
 package com.scrumdapp.checkpointservice.mappers
 
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
-import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
+import com.scrumdapp.checkpointservice.dto.SessionResponseDto
 import com.scrumdapp.checkpointservice.entities.CheckpointSession
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.ZoneId
 
 
-fun CheckpointSession.toDto(): CheckpointSessionResponseDto {
+fun CheckpointSession.toDto(): SessionResponseDto {
     val zonedDateTime = ZonedDateTime.of(this.createdDate, this.startTime, ZoneId.systemDefault())
 
-    return CheckpointSessionResponseDto(
+    return SessionResponseDto(
         id = this.id,
         groupId = this.groupId,
         ownerId = this.groupUserId,
