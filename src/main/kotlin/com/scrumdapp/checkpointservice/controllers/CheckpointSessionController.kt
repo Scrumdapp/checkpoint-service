@@ -4,7 +4,10 @@ import com.scrumdapp.checkpointservice.errors.BadRequestException
 import com.scrumdapp.checkpointservice.errors.NotFoundException
 import com.scrumdapp.checkpointservice.errors.ServerFaultException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
-import com.scrumdapp.checkpointservice.dto.CheckpointSessionResponseDto
+import com.scrumdapp.checkpointservice.dto.SessionDateDtoRaw
+import com.scrumdapp.checkpointservice.dto.SessionDateResponseDto
+import com.scrumdapp.checkpointservice.dto.SessionResponseDto
+import com.scrumdapp.checkpointservice.errors.ForbiddenException
 import com.scrumdapp.checkpointservice.services.CheckpointSessionService
 import com.scrumdapp.passportplugin.annotations.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
@@ -40,9 +43,9 @@ class CheckpointSessionController(
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate?
-    ): List<CheckpointSessionResponseDto> {
+    ): List<SessionResponseDto> {
         passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
+            ?: throw ForbiddenException(message = "User is not a member of this group")
 
         if (from != null && to != null && from.isAfter(to)) {
             throw BadRequestException(message = "from date must be before to date")
@@ -55,15 +58,28 @@ class CheckpointSessionController(
         }
     }
 
+    @GetMapping("/recent")
+    fun getRecentSessions(
+        @PathVariable groupId: Long,
+        @Passport passport: PassportContent,
+        @RequestParam(required = false) limit: Int?,
+    ): List<SessionDateResponseDto> {
+        passport.userGroups?.find { it.toLong() == groupId }
+            ?: throw ForbiddenException(message = "User is not a member of this group")
+
+        if (limit != null && limit !in 1..20) throw BadRequestException(message = "Limit must be between 0 and 20")
+        return sessionService.getRecentSessions(groupId, limit ?: 5)
+    }
+
 
     @GetMapping("/{sessionId}")
     fun getSession(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long
-    ): CheckpointSessionResponseDto {
+    ): SessionResponseDto {
         passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
+            ?: throw ForbiddenException(message = "User is not a member of this group")
 
         return sessionService.getSession(groupId, sessionId)
             ?: throw NotFoundException(message = "session with $sessionId not found")
@@ -75,9 +91,9 @@ class CheckpointSessionController(
         res: HttpServletResponse,
         @PathVariable groupId: Long,
         @Valid @RequestBody dto: CheckpointSessionCreationDto
-    ): CheckpointSessionResponseDto {
+    ): SessionResponseDto {
         passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "User is not a member of this group")
+            ?: throw ForbiddenException(message = "User is not a member of this group")
 
         val jwt = SecurityContextHolder.getContext().authentication?.principal as? Jwt ?: throw ServerFaultException()
 

@@ -42,7 +42,7 @@ class CheckpointController(
         @Valid @RequestBody checkpoint: CheckpointPatchDto,
 
     ): CheckpointResponseDto {
-        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
+        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId) == false ) throw ForbiddenException(message = "User is not a member of this group")
         return checkPointService.upsertCheckpoint(groupId.toLong(), checkpoint, passport.userId.toLong())
     }
 }

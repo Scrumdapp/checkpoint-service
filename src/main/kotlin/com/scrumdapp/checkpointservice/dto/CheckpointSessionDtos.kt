@@ -4,15 +4,27 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
+import java.time.LocalDate
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class CheckpointSessionResponseDto(
+data class SessionResponseDto(
     val id: Long,
     val startTime: String,
     val duration: Long,
     val groupId: Long,
     val ownerId: Long,
     val name: String?,
+)
+
+data class SessionDateDtoRaw(
+    val createdDate: LocalDate,
+    val id: Long,
+)
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class SessionDateResponseDto(
+    val date: LocalDate,
+    val sessions: List<Long>
 )
 
 data class CheckpointSessionCreationDto(
