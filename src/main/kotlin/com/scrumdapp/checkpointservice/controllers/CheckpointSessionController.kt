@@ -56,7 +56,7 @@ class CheckpointSessionController(
         }
     }
 
-    @GetMapping("/recent")
+    @GetMapping("/dates")
     fun getRecentSessions(
         @PathVariable groupId: Long,
         @Passport passport: PassportContent,
