@@ -42,6 +42,8 @@ class CheckPointService(
 
     fun findAllBySessionId(sessionId: Long, groupId: Long): List<CheckpointResponseDto> {
         val checkpoints = checkpointRepository.findAllByCheckpointSessionId(sessionId)
+
+        if (checkpoints.isEmpty()) return checkpoints.map { it.toDto() }
         if (checkpoints[0].checkpointSession.groupId != groupId) throw ForbiddenException()
         return checkpoints.map { it.toDto() }
     }
