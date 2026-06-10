@@ -1,6 +1,6 @@
 package com.scrumdapp.checkpointservice.repository
 
-import com.scrumdapp.checkpointservice.dto.SessionDateDtoRaw
+import com.scrumdapp.checkpointservice.dto.SessionDatesRaw
 import com.scrumdapp.checkpointservice.entities.CheckpointSession
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -29,7 +29,7 @@ interface CheckpointSessionRepository: JpaRepository<CheckpointSession, Int> {
         @Param("startDate") startDate: LocalDate,
         @Param("groupId") groupId: Long,
         @Param("limit") limit: Int
-    ): List<SessionDateDtoRaw>
+    ): List<SessionDatesRaw>
 
     fun findByIdAndGroupId(id: Long, groupId: Long): CheckpointSession?
     fun findAllByGroupId(groupId: Long): List<CheckpointSession>

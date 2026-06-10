@@ -1,6 +1,7 @@
 package com.scrumdapp.checkpointservice.services
 
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
+import com.scrumdapp.checkpointservice.dto.SessionDates
 import com.scrumdapp.checkpointservice.dto.SessionDateResponseDto
 import com.scrumdapp.checkpointservice.dto.SessionResponseDto
 import com.scrumdapp.checkpointservice.entities.Checkpoint
@@ -58,7 +59,7 @@ class CheckpointSessionService(
         return response.toList()
     }
 
-    fun getRecentSessions(groupId: Long, limit: Int): List<SessionDateResponseDto> {
+    fun getRecentSessions(groupId: Long, limit: Int): SessionDateResponseDto {
         val sessions = checkpointSessionRepository.findRecentSessionDates(LocalDate.now(), groupId, limit)
 
         val sessionMap = LinkedHashMap<LocalDate, MutableList<Long>>()
@@ -66,7 +67,13 @@ class CheckpointSessionService(
             sessionMap.getOrPut(s.createdDate) { mutableListOf() }.add(s.id)
         }
 
-        return sessionMap.map { (date, ids) -> SessionDateResponseDto(date, ids) }
+        val sessionDates = sessionMap.map { (date, ids) -> SessionDates(date, ids) }
+
+        return SessionDateResponseDto(
+            sessions.minOfOrNull { t -> t.createdDate },
+            sessions.maxOfOrNull { t -> t.createdDate },
+            sessionDates
+        )
     }
 
     fun getSession(groupId: Long, id: Long): SessionResponseDto? {

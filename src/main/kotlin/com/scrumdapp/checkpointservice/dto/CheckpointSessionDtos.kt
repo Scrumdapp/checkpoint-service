@@ -16,15 +16,21 @@ data class SessionResponseDto(
     val name: String?,
 )
 
-data class SessionDateDtoRaw(
+data class SessionDatesRaw(
     val createdDate: LocalDate,
     val id: Long,
 )
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class SessionDateResponseDto(
+data class SessionDates(
     val date: LocalDate,
     val sessions: List<Long>
+)
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class SessionDateResponseDto(
+    val fromDate: LocalDate?,
+    val toDate: LocalDate?,
+    val dates: List<SessionDates>
 )
 
 data class CheckpointSessionCreationDto(

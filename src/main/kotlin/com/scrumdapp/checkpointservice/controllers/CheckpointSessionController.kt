@@ -4,7 +4,6 @@ import com.scrumdapp.checkpointservice.errors.BadRequestException
 import com.scrumdapp.checkpointservice.errors.NotFoundException
 import com.scrumdapp.checkpointservice.errors.ServerFaultException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
-import com.scrumdapp.checkpointservice.dto.SessionDateDtoRaw
 import com.scrumdapp.checkpointservice.dto.SessionDateResponseDto
 import com.scrumdapp.checkpointservice.dto.SessionResponseDto
 import com.scrumdapp.checkpointservice.errors.ForbiddenException
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 
 @RestController
@@ -63,7 +61,7 @@ class CheckpointSessionController(
         @PathVariable groupId: Long,
         @Passport passport: PassportContent,
         @RequestParam(required = false) limit: Int?,
-    ): List<SessionDateResponseDto> {
+    ): SessionDateResponseDto {
         passport.userGroups?.find { it.toLong() == groupId }
             ?: throw ForbiddenException(message = "User is not a member of this group")
 
