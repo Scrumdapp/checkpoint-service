@@ -90,9 +90,10 @@ class CheckpointSessionService(
         }
         return response.toList()
     }
-    fun getCalendarSessions(groupId: Long, year: Int, month: Int): List<SessionResponseDto> {
-        val firstOfMonth = LocalDate.of(year, month, 1)
-        val lastOfMonth = firstOfMonth.withDayOfMonth(firstOfMonth.lengthOfMonth())
+    fun getCalendarSessions(groupId: Long, month: YearMonth): List<SessionResponseDto> {
+        val firstOfMonth = month.atDay(1)
+        val lastOfMonth = month.atEndOfMonth()
+
         val calendarStart = firstOfMonth.minusDays((firstOfMonth.dayOfWeek.value - 1).toLong())
         val calendarEnd = lastOfMonth.plusDays((7 - lastOfMonth.dayOfWeek.value).toLong())
 

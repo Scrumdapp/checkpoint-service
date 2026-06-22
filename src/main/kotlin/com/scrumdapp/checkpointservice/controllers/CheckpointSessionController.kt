@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
+import java.time.YearMonth
 
 @RestController
 @Validated
@@ -83,19 +84,16 @@ class CheckpointSessionController(
             ?: throw NotFoundException(message = "session with $sessionId not found")
     }
 
-    @GetMapping("/calendar")
+    @GetMapping("/dates")
     fun getCalendarSessions(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,
-        @RequestParam year: Int,
-        @RequestParam month: Int
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM") month: YearMonth
     ): List<SessionResponseDto> {
         passport.userGroups?.find { it.toLong() == groupId }
             ?: throw ForbiddenException(message = "User is not a member of this group")
 
-        if (month !in 1..12) throw BadRequestException(message = "Month must be between 1 and 12")
-
-        return sessionService.getCalendarSessions(groupId, year, month)
+        return sessionService.getCalendarSessions(groupId, month)
     }
 
     @GetMapping("/months")
