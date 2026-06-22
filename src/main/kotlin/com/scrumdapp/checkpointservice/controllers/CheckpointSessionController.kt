@@ -83,6 +83,32 @@ class CheckpointSessionController(
             ?: throw NotFoundException(message = "session with $sessionId not found")
     }
 
+    @GetMapping("/calendar")
+    fun getCalendarSessions(
+        @Passport passport: PassportContent,
+        @PathVariable groupId: Long,
+        @RequestParam year: Int,
+        @RequestParam month: Int
+    ): List<SessionResponseDto> {
+        passport.userGroups?.find { it.toLong() == groupId }
+            ?: throw ForbiddenException(message = "User is not a member of this group")
+
+        if (month !in 1..12) throw BadRequestException(message = "Month must be between 1 and 12")
+
+        return sessionService.getCalendarSessions(groupId, year, month)
+    }
+
+    @GetMapping("/months")
+    fun getMonthsWithSessions(
+        @Passport passport: PassportContent,
+        @PathVariable groupId: Long
+    ): List<String> {
+        passport.userGroups?.find { it.toLong() == groupId }
+            ?: throw ForbiddenException(message = "User is not a member of this group")
+
+        return sessionService.getMonthsWithSessions(groupId)
+    }
+
     @PostMapping
     fun createSession(
         @Passport passport: PassportContent,

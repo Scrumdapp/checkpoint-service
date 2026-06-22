@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
 
 @Service
 class CheckpointSessionService(
@@ -89,6 +90,25 @@ class CheckpointSessionService(
         }
         return response.toList()
     }
+    fun getCalendarSessions(groupId: Long, year: Int, month: Int): List<SessionResponseDto> {
+        val firstOfMonth = LocalDate.of(year, month, 1)
+        val lastOfMonth = firstOfMonth.withDayOfMonth(firstOfMonth.lengthOfMonth())
+        val calendarStart = firstOfMonth.minusDays((firstOfMonth.dayOfWeek.value - 1).toLong())
+        val calendarEnd = lastOfMonth.plusDays((7 - lastOfMonth.dayOfWeek.value).toLong())
+
+        return checkpointSessionRepository.findAllByGroupIdAndCreatedDateBetween(groupId, calendarStart, calendarEnd)
+            .map { it.toDto() }
+    }
+
+    fun getMonthsWithSessions(groupId: Long): List<String> {
+        val dates = checkpointSessionRepository.findAllByGroupId(groupId).map { it.createdDate }
+
+        return dates
+            .map { YearMonth.from(it) }
+            .distinct()
+            .sorted()
+            .map { it.toString() } // formats as "2026-01"
+    }
 
     fun createSession(jwt: Jwt, groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
         val checkpointSession = dto.toEntity(groupId, ownerId, dto.name)
@@ -100,5 +120,7 @@ class CheckpointSessionService(
             checkpointRepository.save(Checkpoint(session, groupUser))
         }
         return session.toDto()
+
+
     }
 }
