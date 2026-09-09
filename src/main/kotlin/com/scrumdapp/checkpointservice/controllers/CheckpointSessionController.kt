@@ -57,20 +57,6 @@ class CheckpointSessionController(
         }
     }
 
-    @GetMapping("/dates")
-    fun getRecentSessions(
-        @PathVariable groupId: Long,
-        @Passport passport: PassportContent,
-        @RequestParam(required = false) limit: Int?,
-    ): SessionDateResponseDto {
-        passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
-
-        if (limit != null && limit !in 1..20) throw BadRequestException(message = "Limit must be between 0 and 20")
-        return sessionService.getRecentSessions(groupId, limit ?: 5)
-    }
-
-
     @GetMapping("/{sessionId}")
     fun getSession(
         @Passport passport: PassportContent,
@@ -85,16 +71,22 @@ class CheckpointSessionController(
     }
 
     @GetMapping("/dates")
-    fun getCalendarSessions(
-        @Passport passport: PassportContent,
+    fun getRecentSessions(
         @PathVariable groupId: Long,
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM") month: YearMonth
-    ): List<SessionResponseDto> {
+        @Passport passport: PassportContent,
+        @RequestParam(required = false) limit: Int?,
+        @RequestParam(required = false) month: YearMonth?,
+    ): SessionDateResponseDto {
         passport.userGroups?.find { it.toLong() == groupId }
             ?: throw ForbiddenException(message = "User is not a member of this group")
 
-        return sessionService.getCalendarSessions(groupId, month)
+        if (limit != null && limit !in 1..20) throw BadRequestException(message = "Limit must be between 0 and 20")
+        if (month != null) {
+            return sessionService.getRecentCalendarSessions(groupId, month, limit ?: 31)
+        }
+        return sessionService.getRecentSessions(groupId, limit ?: 5)
     }
+
 
     @GetMapping("/months")
     fun getMonthsWithSessions(
