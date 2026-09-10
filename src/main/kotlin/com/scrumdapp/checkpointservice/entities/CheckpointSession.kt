@@ -23,7 +23,6 @@ class CheckpointSession {
 
     var name: String? = null
 
-
     @OneToMany(mappedBy = "checkpointSession", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var checkpoints: MutableList<Checkpoint> = mutableListOf()
 }

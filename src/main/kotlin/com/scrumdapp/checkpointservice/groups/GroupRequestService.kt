@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient.builder
 import org.springframework.web.client.toEntity
@@ -29,8 +31,10 @@ class GroupRequestService (
 
     private val mapper = ObjectMapper()
 
-    fun getGroupUserIds(jwt: Jwt, groupId: Long): List<Long> {
+    fun getGroupUserIds(groupId: Long): List<Long> {
         val uri = fetchEndpoint.replace("{groupId}", groupId.toString())
+
+        val jwt = SecurityContextHolder.getContext().authentication?.principal as Jwt
         try {
             val res = reqBuilder.get()
                 .uri(uri)
