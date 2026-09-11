@@ -4,7 +4,6 @@ import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
 import com.scrumdapp.checkpointservice.dto.Presence
 import com.scrumdapp.checkpointservice.entities.Checkpoint
-import com.scrumdapp.checkpointservice.entities.CheckpointSession
 
 fun Checkpoint.toDto(): CheckpointResponseDto {
     return CheckpointResponseDto(

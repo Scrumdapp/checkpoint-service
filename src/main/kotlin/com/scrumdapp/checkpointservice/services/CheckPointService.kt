@@ -25,7 +25,7 @@ class CheckPointService(
         dto: CheckpointPatchDto,
         ownId: Long
     ): CheckpointResponseDto {
-        val session = getActiveSession(groupId, dto.sessionId)
+        val session = getActiveSession(dto.sessionId)
 
         if (session.groupUserId != ownId && dto.userId != ownId) {
             throw ForbiddenException(message = "Only the owner of a session can alter other users checkpoints")
@@ -62,8 +62,8 @@ class CheckPointService(
         return Checkpoint(session, dto.userId).applyPatch(dto)
     }
 
-    private fun getActiveSession(groupId: Long, sessionId: Long): CheckpointSession {
-        val session = sessionRepository.findByIdAndGroupId(groupId, sessionId) ?:
+    private fun getActiveSession(sessionId: Long): CheckpointSession {
+        val session = sessionRepository.findById(sessionId) ?:
             throw BadRequestException(message = "Session with id $sessionId not found")
 
         if (!session.isActive()) {
@@ -74,7 +74,7 @@ class CheckPointService(
 
     private fun checkGroupAccess(groupId: Long, userId: Long) {
         if (userId !in groupRequestService.getGroupUserIds(groupId)) {
-            throw ForbiddenException(message = "You don't have access to this resource")
+            throw ForbiddenException(message = "Could not create checkpoint for user $userId")
         }
     }
 }

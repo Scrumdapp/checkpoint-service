@@ -2,8 +2,8 @@ package com.scrumdapp.checkpointservice.controllers
 
 import com.scrumdapp.checkpointservice.errors.BadRequestException
 import com.scrumdapp.checkpointservice.errors.NotFoundException
-import com.scrumdapp.checkpointservice.errors.ServerFaultException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
+import com.scrumdapp.checkpointservice.dto.CheckpointSessionPatchDto
 import com.scrumdapp.checkpointservice.dto.SessionDateResponseDto
 import com.scrumdapp.checkpointservice.dto.SessionResponseDto
 import com.scrumdapp.checkpointservice.errors.ForbiddenException
@@ -14,10 +14,9 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -51,9 +50,9 @@ class CheckpointSessionController(
         }
 
         return when {
-            onlyActive == true -> sessionService.getActiveSessions(groupId, date)
-            from != null && to != null -> sessionService.getSessionsBetweenDates(groupId, from, to)
-            else -> sessionService.getSessions(groupId, date)
+            onlyActive == true -> sessionService.getActive(groupId, date)
+            from != null && to != null -> sessionService.getBetweenDates(groupId, from, to)
+            else -> sessionService.getAll(groupId, date)
         }
     }
 
@@ -66,7 +65,7 @@ class CheckpointSessionController(
         passport.userGroups?.find { it.toLong() == groupId }
             ?: throw ForbiddenException(message = "User is not a member of this group")
 
-        return sessionService.getSession(groupId, sessionId)
+        return sessionService.getById(groupId, sessionId)
             ?: throw NotFoundException(message = "session with $sessionId not found")
     }
 
@@ -82,9 +81,9 @@ class CheckpointSessionController(
 
         if (limit != null && limit !in 1..20) throw BadRequestException(message = "Limit must be between 0 and 20")
         if (month != null) {
-            return sessionService.getRecentCalendarSessions(groupId, month, limit ?: 31)
+            return sessionService.getInMonths(groupId, month, limit ?: 31)
         }
-        return sessionService.getRecentSessions(groupId, limit ?: 5)
+        return sessionService.getRecent(groupId, limit ?: 5)
     }
 
 
@@ -109,9 +108,20 @@ class CheckpointSessionController(
         passport.userGroups?.find { it.toLong() == groupId }
             ?: throw ForbiddenException(message = "User is not a member of this group")
 
-        val jwt = SecurityContextHolder.getContext().authentication?.principal as? Jwt ?: throw ServerFaultException()
-
         res.status = HttpStatus.CREATED.value()
-        return sessionService.createSession(jwt, groupId, passport.userId.toLong(), dto)
+        return sessionService.create(groupId, passport.userId.toLong(), dto)
+    }
+
+    @PatchMapping("/{sessionId}")
+    fun updateSession(
+        @Passport passport: PassportContent,
+        @PathVariable groupId: Long,
+        @PathVariable sessionId: Long,
+        @Valid @RequestBody dto: CheckpointSessionPatchDto
+    ): SessionResponseDto {
+        passport.userGroups?.find { it.toLong() == groupId }
+            ?: throw ForbiddenException(message = "User is not a member of this group")
+
+        return sessionService.patch(groupId, sessionId, passport.userId.toLong(), dto)
     }
 }
