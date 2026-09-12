@@ -23,13 +23,9 @@ class CheckpointController(
 
     @GetMapping
     fun getCheckpoints(
-        @Passport passport: PassportContent,
         @PathVariable groupId: Int,
         @RequestParam(required = false) session: Long,
         ): List<CheckpointResponseDto> {
-        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId) == false ) {
-            throw ForbiddenException(message = "You don't have access to this resource")
-        }
         return checkPointService.findAllBySession(session)
     }
 
@@ -39,9 +35,6 @@ class CheckpointController(
         @PathVariable groupId: Long,
         @Valid @RequestBody checkpoint: CheckpointPatchDto,
     ): CheckpointResponseDto {
-        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId.toInt()) == false ) {
-            throw ForbiddenException(message = "User is not a member of this group")
-        }
         return checkPointService.upsert(groupId, checkpoint, passport.userId.toLong())
     }
 }

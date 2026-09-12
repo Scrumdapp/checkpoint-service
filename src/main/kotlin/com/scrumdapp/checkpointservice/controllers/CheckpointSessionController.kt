@@ -35,16 +35,12 @@ class CheckpointSessionController(
 
     @GetMapping
     fun getSessionsBetweenDates(
-        @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @RequestParam(required = false) onlyActive: Boolean?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate?
     ): List<SessionResponseDto> {
-        passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
-
         if (from != null && to != null && from.isAfter(to)) {
             throw BadRequestException(message = "from date must be before to date")
         }
@@ -58,13 +54,9 @@ class CheckpointSessionController(
 
     @GetMapping("/{sessionId}")
     fun getSession(
-        @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long
     ): SessionResponseDto {
-        passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
-
         return sessionService.getById(groupId, sessionId)
             ?: throw NotFoundException(message = "session with $sessionId not found")
     }
@@ -72,13 +64,9 @@ class CheckpointSessionController(
     @GetMapping("/dates")
     fun getRecentSessions(
         @PathVariable groupId: Long,
-        @Passport passport: PassportContent,
         @RequestParam(required = false) limit: Int?,
         @RequestParam(required = false) month: YearMonth?,
     ): SessionDateResponseDto {
-        passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
-
         if (limit != null && limit !in 1..20) throw BadRequestException(message = "Limit must be between 0 and 20")
         if (month != null) {
             return sessionService.getInMonths(groupId, month, limit ?: 31)
@@ -89,12 +77,8 @@ class CheckpointSessionController(
 
     @GetMapping("/months")
     fun getMonthsWithSessions(
-        @Passport passport: PassportContent,
         @PathVariable groupId: Long
     ): List<String> {
-        passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
-
         return sessionService.getMonthsWithSessions(groupId)
     }
 
@@ -105,9 +89,6 @@ class CheckpointSessionController(
         @PathVariable groupId: Long,
         @Valid @RequestBody dto: CheckpointSessionCreationDto
     ): SessionResponseDto {
-        passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
-
         res.status = HttpStatus.CREATED.value()
         return sessionService.create(groupId, passport.userId.toLong(), dto)
     }
@@ -119,9 +100,6 @@ class CheckpointSessionController(
         @PathVariable sessionId: Long,
         @Valid @RequestBody dto: CheckpointSessionPatchDto
     ): SessionResponseDto {
-        passport.userGroups?.find { it.toLong() == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
-
         return sessionService.patch(groupId, sessionId, passport.userId.toLong(), dto)
     }
 }
