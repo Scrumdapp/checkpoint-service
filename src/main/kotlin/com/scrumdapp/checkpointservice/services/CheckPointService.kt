@@ -74,7 +74,7 @@ class CheckPointService(
 
     private fun checkGroupAccess(groupId: Long, userId: Long) {
         if (userId !in groupRequestService.getGroupUserIds(groupId)) {
-            throw ForbiddenException(message = "Could not create checkpoint for user $userId")
+            throw BadRequestException(message = "Could not create checkpoint for user $userId")
         }
     }
 }
