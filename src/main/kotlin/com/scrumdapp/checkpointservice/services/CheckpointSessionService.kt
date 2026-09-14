@@ -3,6 +3,7 @@ package com.scrumdapp.checkpointservice.services
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
 import com.scrumdapp.checkpointservice.dto.SessionDates
 import com.scrumdapp.checkpointservice.dto.SessionDateResponseDto
+import com.scrumdapp.checkpointservice.dto.SessionDatesRaw
 import com.scrumdapp.checkpointservice.dto.SessionResponseDto
 import com.scrumdapp.checkpointservice.entities.Checkpoint
 import com.scrumdapp.checkpointservice.errors.BadRequestException
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
 
 @Service
 class CheckpointSessionService(
@@ -62,19 +64,21 @@ class CheckpointSessionService(
     fun getRecentSessions(groupId: Long, limit: Int): SessionDateResponseDto {
         val sessions = checkpointSessionRepository.findRecentSessionDates(LocalDate.now(), groupId, limit)
 
-        val sessionMap = LinkedHashMap<LocalDate, MutableList<Long>>()
-        for (s in sessions) {
-            sessionMap.getOrPut(s.createdDate) { mutableListOf() }.add(s.id)
-        }
-
-        val sessionDates = sessionMap.map { (date, ids) -> SessionDates(date, ids) }
-
-        return SessionDateResponseDto(
-            sessions.minOfOrNull { t -> t.createdDate },
-            sessions.maxOfOrNull { t -> t.createdDate },
-            sessionDates
-        )
+        return convertToSessionDates(sessions)
     }
+
+    fun getRecentCalendarSessions(groupId: Long, month: YearMonth, limit: Int): SessionDateResponseDto {
+        val firstOfMonth = month.atDay(1)
+        val lastOfMonth = month.atEndOfMonth()
+
+        val calendarStart = firstOfMonth.minusDays((firstOfMonth.dayOfWeek.value - 1).toLong())
+        val calendarEnd = lastOfMonth.plusDays((7 - lastOfMonth.dayOfWeek.value).toLong())
+
+        val sessions = checkpointSessionRepository.findSessionDatesBetweenDates(calendarStart, calendarEnd, groupId, limit)
+
+        return convertToSessionDates(sessions)
+    }
+
 
     fun getSession(groupId: Long, id: Long): SessionResponseDto? {
         val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?: throw BadRequestException(message = "Checkpoint with id $id not found")
@@ -90,6 +94,16 @@ class CheckpointSessionService(
         return response.toList()
     }
 
+    fun getMonthsWithSessions(groupId: Long): List<String> {
+        val dates = checkpointSessionRepository.findMonthsWithSessions(groupId)
+
+        return dates
+            .map { YearMonth.from(it) }
+            .distinct()
+            .sorted()
+            .map { it.toString() } // formats as "2026-01"
+    }
+
     fun createSession(jwt: Jwt, groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
         val checkpointSession = dto.toEntity(groupId, ownerId, dto.name)
 
@@ -101,4 +115,20 @@ class CheckpointSessionService(
         }
         return session.toDto()
     }
+
+    fun convertToSessionDates(sessions: List<SessionDatesRaw>): SessionDateResponseDto {
+        val sessionMap = LinkedHashMap<LocalDate, MutableList<Long>>()
+        for (s in sessions) {
+            sessionMap.getOrPut(s.createdDate) { mutableListOf() }.add(s.id)
+        }
+
+        val sessionDates = sessionMap.map { (date, ids) -> SessionDates(date, ids) }
+
+        return SessionDateResponseDto(
+            sessions.minOfOrNull { t -> t.createdDate },
+            sessions.maxOfOrNull { t -> t.createdDate },
+            sessionDates
+        )
+    }
+
 }
