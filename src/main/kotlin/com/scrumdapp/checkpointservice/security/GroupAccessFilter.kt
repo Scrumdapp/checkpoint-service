@@ -15,14 +15,14 @@ class GroupAccessFilter(
     val passportService: PassportService
 ): OncePerRequestFilter(
 ) {
-    private val groupPaths = Regex("""^/groups/([^/]+)$""")
+    private val groupPaths = Regex("""/groups/([^/]+)""")
 
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val group = groupPaths.matchEntire(request.requestURI)?.groupValues?.getOrNull(1)
+        val group = groupPaths.find(request.requestURI)?.groupValues?.getOrNull(1)
 
         if (group != null) {
             val jwt = SecurityContextHolder.getContext().authentication?.principal as? Jwt
