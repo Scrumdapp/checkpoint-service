@@ -67,11 +67,11 @@ class CheckpointSessionController(
         @RequestParam(required = false) limit: Int?,
         @RequestParam(required = false) month: YearMonth?,
     ): SessionDateResponseDto {
-        if (limit != null && limit !in 1..20) throw BadRequestException(message = "Limit must be between 0 and 20")
+        if (limit != null && limit !in 1..50) throw BadRequestException(message = "Limit must be between 0 and 50")
         if (month != null) {
-            return sessionService.getInMonths(groupId, month, limit ?: 31)
+            return sessionService.getInMonths(groupId, month, limit ?: 50)
         }
-        return sessionService.getRecent(groupId, limit ?: 5)
+        return sessionService.getRecent(groupId, limit ?: 50)
     }
 
 
