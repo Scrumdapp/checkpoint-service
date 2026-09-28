@@ -16,6 +16,10 @@ import tools.jackson.databind.ObjectMapper
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class GroupUserResponse(
     val user_id: Long,
+    val group_id: Long,
+    val first_name: String,
+    val last_name: String,
+    var is_ghost: Boolean
 )
 
 @Service
@@ -29,7 +33,7 @@ class GroupRequestService (
 
     private val mapper = ObjectMapper()
 
-    fun getGroupUserIds(jwt: Jwt, groupId: Long): List<Long> {
+    fun getGroupUsers(jwt: Jwt, groupId: Long): List<GroupUserResponse> {
         val uri = fetchEndpoint.replace("{groupId}", groupId.toString())
         try {
             val res = reqBuilder.get()
@@ -44,10 +48,9 @@ class GroupRequestService (
                 throw Exception("Unexpected response from user request")
             } else {
                 val body = res.body ?: throw Exception("Unexpected response from user request")
-                return mapper.readValue(body, object : TypeReference<List<GroupUserResponse>>() {}).map { it.user_id }
+                return mapper.readValue(body, object : TypeReference<List<GroupUserResponse>>() {})
             }
         } catch (e: Exception) {
-            println(e)
             throw BadRequestException(message = "Downstream service is unreachable")
         }
     }
