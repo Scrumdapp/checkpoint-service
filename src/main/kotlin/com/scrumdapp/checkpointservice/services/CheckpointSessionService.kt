@@ -82,10 +82,13 @@ class CheckpointSessionService(
 
     fun create(groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
         val session = checkpointSessionRepository.save(dto.toEntity(groupId, ownerId, dto.name))
+        val groupUsers = groupRequestService.getGroupUserIds(groupId)
 
-        val userIds = groupRequestService.getGroupUserIds(groupId)
-
-        val checkpoints = userIds.map { userId -> Checkpoint(session, userId) }
+        val checkpoints = mutableListOf<Checkpoint>()
+        for (groupUser in groupUsers) {
+            if (groupUser.is_ghost) continue
+            checkpoints.add(Checkpoint(session, groupUser.user_id))
+        }
         checkpointRepository.saveAll(checkpoints)
 
         return session.toDto()

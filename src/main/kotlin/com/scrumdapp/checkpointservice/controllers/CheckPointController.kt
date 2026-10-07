@@ -1,6 +1,5 @@
 package com.scrumdapp.checkpointservice.controllers
 
-import com.scrumdapp.checkpointservice.errors.ForbiddenException
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
 import com.scrumdapp.checkpointservice.services.CheckPointService
@@ -23,14 +22,14 @@ class CheckpointController(
 
     @GetMapping
     fun getCheckpoints(
-        @PathVariable groupId: Int,
+        @PathVariable groupId: Long,
         @RequestParam(required = false) session: Long,
         ): List<CheckpointResponseDto> {
-        return checkPointService.findAllBySession(session)
+        return checkPointService.findAllBySession(session, groupId)
     }
 
     @PatchMapping
-    fun patchCheckpoint(
+    fun upsertCheckpoint(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @Valid @RequestBody checkpoint: CheckpointPatchDto,

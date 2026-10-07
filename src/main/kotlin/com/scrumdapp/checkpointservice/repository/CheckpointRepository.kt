@@ -13,14 +13,24 @@ interface CheckpointRepository: JpaRepository<Checkpoint, Long> {
     @Query("""
         SELECT DISTINCT cp 
         FROM Checkpoint cp
-            WHERE cp.checkpointSession.id = :sessionId
-                AND cp.checkpointSession.groupId = :groupId
-                AND cp.groupUserId = :userId
+        WHERE cp.checkpointSession.id = :sessionId
+        AND cp.checkpointSession.groupId = :groupId
+        AND cp.groupUserId = :userId
     """)
     fun findUserCheckpoint(
         @Param("sessionId") sessionId: Long,
         @Param("groupId") groupId: Long,
         @Param("userId") userId: Long,
     ): List<Checkpoint>
-    fun findAllByCheckpointSessionId(sessionId: Long): List<Checkpoint>
-}
+
+    @Query("""
+        SELECT cp
+        FROM Checkpoint cp
+        WHERE cp.checkpointSession.id = :sessionId
+        AND cp.checkpointSession.groupId = :groupId
+    """)
+    fun findAllInSession(
+        @Param("sessionId") sessionId: Long,
+        @Param("groupId") groupId: Long
+    ): List<Checkpoint>
+ }

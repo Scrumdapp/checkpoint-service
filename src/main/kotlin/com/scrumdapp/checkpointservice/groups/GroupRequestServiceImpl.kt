@@ -1,6 +1,5 @@
 package com.scrumdapp.checkpointservice.groups
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.scrumdapp.checkpointservice.errors.BadRequestException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -14,11 +13,6 @@ import org.springframework.web.client.toEntity
 import tools.jackson.core.type.TypeReference
 import tools.jackson.databind.ObjectMapper
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class GroupUserResponse(
-    val user_id: Long,
-)
-
 @Service
 class GroupRequestServiceImpl (
     @Value($$"${GROUP_SERVICE_URL}") private val baseUrl: String,
@@ -30,7 +24,7 @@ class GroupRequestServiceImpl (
 
     private val mapper = ObjectMapper()
 
-    override fun getGroupUserIds(groupId: Long): List<Long> {
+    override fun getGroupUserIds(groupId: Long): List<GroupUserResponse> {
         val uri = fetchEndpoint.replace("{groupId}", groupId.toString())
 
         val jwt = SecurityContextHolder.getContext().authentication?.principal as Jwt
@@ -47,10 +41,9 @@ class GroupRequestServiceImpl (
                 throw Exception("Unexpected response from user request")
             } else {
                 val body = res.body ?: throw Exception("Unexpected response from user request")
-                return mapper.readValue(body, object : TypeReference<List<GroupUserResponse>>() {}).map { it.user_id }
+                return mapper.readValue(body, object : TypeReference<List<GroupUserResponse>>() {})
             }
         } catch (e: Exception) {
-            println(e)
             throw BadRequestException(message = "Downstream service is unreachable")
         }
     }

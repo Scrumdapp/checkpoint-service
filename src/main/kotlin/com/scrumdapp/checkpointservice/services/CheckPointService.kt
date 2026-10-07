@@ -38,7 +38,7 @@ class CheckPointService(
         if (checkpoint != null) {
             checkpoint.applyPatch(dto)
         } else {
-           checkpoint = create(groupId, session, dto)
+           checkpoint = createNewUserCheckpoint(groupId, session, dto)
         }
 
         return checkpointRepository.save(checkpoint).toDto()
@@ -46,18 +46,19 @@ class CheckPointService(
 
     fun findAllBySession(
         sessionId: Long,
+        groupId: Long,
     ): List<CheckpointResponseDto> {
-        val checkpoints = checkpointRepository.findAllByCheckpointSessionId(sessionId)
-
-        return if (checkpoints.isEmpty()) {
-            emptyList()
-        } else {
-            checkpoints.map { it.toDto() }
-        }
+        val checkpoints = checkpointRepository.findAllInSession(sessionId, groupId)
+        return checkpoints.map { it.toDto() }
     }
 
-    private fun create(groupId: Long, session: CheckpointSession, dto: CheckpointPatchDto): Checkpoint {
-        checkGroupAccess(groupId, dto.userId)
+    private fun createNewUserCheckpoint(groupId: Long, session: CheckpointSession, dto: CheckpointPatchDto): Checkpoint {
+        val groupUsers = groupRequestService.getGroupUserIds(groupId)
+
+        val user = groupUsers.find { it.user_id == dto.userId }
+        if (user == null || user.is_ghost) {
+            throw BadRequestException(message = "Could not create checkpoint for user ${dto.userId}")
+        }
 
         return Checkpoint(session, dto.userId).applyPatch(dto)
     }
@@ -70,11 +71,5 @@ class CheckPointService(
             throw BadRequestException(message = "Session has expired")
         }
         return session
-    }
-
-    private fun checkGroupAccess(groupId: Long, userId: Long) {
-        if (userId !in groupRequestService.getGroupUserIds(groupId)) {
-            throw BadRequestException(message = "Could not create checkpoint for user $userId")
-        }
     }
 }

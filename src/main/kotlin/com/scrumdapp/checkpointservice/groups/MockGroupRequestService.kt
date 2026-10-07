@@ -15,8 +15,12 @@ class MockGroupRequestService: GroupRequestService {
         logger.info("Using mock service")
     }
 
-    override fun getGroupUserIds(groupId: Long): List<Long> {
-        return listOf(1, 69, 23, 4)
+    override fun getGroupUserIds(groupId: Long): List<GroupUserResponse> {
+        return listOf(
+            GroupUserResponse(1, groupId, "Garry", "Godspeed", false),
+            GroupUserResponse(2, groupId, "Larry", "Snailspeed", false),
+            GroupUserResponse(3, groupId, "Henk", "Hank", true),
+            GroupUserResponse(4, groupId, "Harry", "Regularspeed", false)
+        )
     }
-
 }
