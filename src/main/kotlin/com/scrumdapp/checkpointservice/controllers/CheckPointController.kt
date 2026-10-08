@@ -3,7 +3,8 @@ package com.scrumdapp.checkpointservice.controllers
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
 import com.scrumdapp.checkpointservice.services.CheckPointService
-import com.scrumdapp.passportplugin.annotations.Passport
+import com.scrumdapp.passportplugin.annotations.groupAccess.IsInGroup
+import com.scrumdapp.passportplugin.annotations.passportController.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
@@ -21,6 +22,7 @@ class CheckpointController(
 ) {
 
     @GetMapping
+    @IsInGroup
     fun getCheckpoints(
         @PathVariable groupId: Long,
         @RequestParam(required = false) session: Long,
@@ -29,6 +31,7 @@ class CheckpointController(
     }
 
     @PatchMapping
+    @IsInGroup
     fun upsertCheckpoint(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,

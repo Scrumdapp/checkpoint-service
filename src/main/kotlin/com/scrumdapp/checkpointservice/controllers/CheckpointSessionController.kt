@@ -6,9 +6,9 @@ import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionPatchDto
 import com.scrumdapp.checkpointservice.dto.SessionDateResponseDto
 import com.scrumdapp.checkpointservice.dto.SessionResponseDto
-import com.scrumdapp.checkpointservice.errors.ForbiddenException
 import com.scrumdapp.checkpointservice.services.CheckpointSessionService
-import com.scrumdapp.passportplugin.annotations.Passport
+import com.scrumdapp.passportplugin.annotations.groupAccess.IsInGroup
+import com.scrumdapp.passportplugin.annotations.passportController.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
@@ -34,6 +34,7 @@ class CheckpointSessionController(
 ) {
 
     @GetMapping
+    @IsInGroup
     fun getSessionsBetweenDates(
         @PathVariable groupId: Long,
         @RequestParam(required = false) onlyActive: Boolean?,
@@ -53,6 +54,7 @@ class CheckpointSessionController(
     }
 
     @GetMapping("/{sessionId}")
+    @IsInGroup
     fun getSession(
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long
@@ -62,6 +64,7 @@ class CheckpointSessionController(
     }
 
     @GetMapping("/dates")
+    @IsInGroup
     fun getRecentSessions(
         @PathVariable groupId: Long,
         @RequestParam(required = false) limit: Int?,
@@ -76,6 +79,7 @@ class CheckpointSessionController(
 
 
     @GetMapping("/months")
+    @IsInGroup
     fun getMonthsWithSessions(
         @PathVariable groupId: Long
     ): List<String> {
@@ -83,6 +87,7 @@ class CheckpointSessionController(
     }
 
     @PostMapping
+    @IsInGroup
     fun createSession(
         @Passport passport: PassportContent,
         res: HttpServletResponse,
@@ -90,16 +95,17 @@ class CheckpointSessionController(
         @Valid @RequestBody dto: CheckpointSessionCreationDto
     ): SessionResponseDto {
         res.status = HttpStatus.CREATED.value()
-        return sessionService.create(groupId, passport.userId.toLong(), dto)
+        return sessionService.create(groupId, passport.userId, dto)
     }
 
     @PatchMapping("/{sessionId}")
+    @IsInGroup
     fun updateSession(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long,
         @Valid @RequestBody dto: CheckpointSessionPatchDto
     ): SessionResponseDto {
-        return sessionService.patch(groupId, sessionId, passport.userId.toLong(), dto)
+        return sessionService.patch(groupId, sessionId, passport.userId, dto)
     }
 }
