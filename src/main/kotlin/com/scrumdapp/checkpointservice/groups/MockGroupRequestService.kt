@@ -3,11 +3,12 @@ package com.scrumdapp.checkpointservice.groups
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty
 import org.springframework.context.annotation.Primary
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 
 @Service
 @Primary
-@ConditionalOnBooleanProperty(name=["USE_MOCK_SERVICE"], havingValue = true)
+@Profile("use_mock_service")
 class MockGroupRequestService: GroupRequestService {
     val logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -15,7 +16,7 @@ class MockGroupRequestService: GroupRequestService {
         logger.info("Using mock service")
     }
 
-    override fun getGroupUserIds(groupId: Long): List<GroupUserResponse> {
+    override fun getGroupUsers(groupId: Long): List<GroupUserResponse> {
         return listOf(
             GroupUserResponse(1, groupId, "Garry", "Godspeed", false),
             GroupUserResponse(2, groupId, "Larry", "Snailspeed", false),

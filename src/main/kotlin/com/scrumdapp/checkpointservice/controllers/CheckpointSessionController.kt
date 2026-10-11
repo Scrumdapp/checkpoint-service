@@ -3,7 +3,7 @@ package com.scrumdapp.checkpointservice.controllers
 import com.scrumdapp.checkpointservice.errors.BadRequestException
 import com.scrumdapp.checkpointservice.errors.NotFoundException
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
-import com.scrumdapp.checkpointservice.dto.CheckpointSessionPatchDto
+import com.scrumdapp.checkpointservice.dto.UpdateCheckpointSessionDto
 import com.scrumdapp.checkpointservice.dto.SessionDateResponseDto
 import com.scrumdapp.checkpointservice.dto.SessionResponseDto
 import com.scrumdapp.checkpointservice.services.CheckpointSessionService
@@ -47,9 +47,9 @@ class CheckpointSessionController(
         }
 
         return when {
-            onlyActive == true -> sessionService.getActive(groupId, date)
-            from != null && to != null -> sessionService.getBetweenDates(groupId, from, to)
-            else -> sessionService.getAll(groupId, date)
+            onlyActive == true -> sessionService.getActiveSessionsByGroupId(groupId, date)
+            from != null && to != null -> sessionService.getSessionsBetweenDates(groupId, from, to)
+            else -> sessionService.getSessionByGroupId(groupId, date)
         }
     }
 
@@ -59,7 +59,7 @@ class CheckpointSessionController(
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long
     ): SessionResponseDto {
-        return sessionService.getById(groupId, sessionId)
+        return sessionService.getSessionById(groupId, sessionId)
             ?: throw NotFoundException(message = "session with $sessionId not found")
     }
 
@@ -72,9 +72,9 @@ class CheckpointSessionController(
     ): SessionDateResponseDto {
         if (limit != null && limit !in 1..50) throw BadRequestException(message = "Limit must be between 0 and 50")
         if (month != null) {
-            return sessionService.getInMonths(groupId, month, limit ?: 50)
+            return sessionService.getSessionDatesInMonth(groupId, month, limit ?: 50)
         }
-        return sessionService.getRecent(groupId, limit ?: 50)
+        return sessionService.getRecentSessionsDates(groupId, limit ?: 50)
     }
 
 
@@ -95,7 +95,7 @@ class CheckpointSessionController(
         @Valid @RequestBody dto: CheckpointSessionCreationDto
     ): SessionResponseDto {
         res.status = HttpStatus.CREATED.value()
-        return sessionService.create(groupId, passport.userId, dto)
+        return sessionService.createSession(groupId, passport.userId, dto)
     }
 
     @PatchMapping("/{sessionId}")
@@ -104,8 +104,8 @@ class CheckpointSessionController(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long,
-        @Valid @RequestBody dto: CheckpointSessionPatchDto
+        @Valid @RequestBody dto: UpdateCheckpointSessionDto
     ): SessionResponseDto {
-        return sessionService.patch(groupId, sessionId, passport.userId, dto)
+        return sessionService.patchSession(groupId, sessionId, passport.userId, dto)
     }
 }

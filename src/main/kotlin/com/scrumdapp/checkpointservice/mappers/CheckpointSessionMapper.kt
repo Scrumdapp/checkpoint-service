@@ -1,14 +1,13 @@
 package com.scrumdapp.checkpointservice.mappers
 
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
-import com.scrumdapp.checkpointservice.dto.CheckpointSessionPatchDto
+import com.scrumdapp.checkpointservice.dto.UpdateCheckpointSessionDto
 import com.scrumdapp.checkpointservice.dto.SessionDateResponseDto
 import com.scrumdapp.checkpointservice.dto.SessionDates
 import com.scrumdapp.checkpointservice.dto.SessionDatesRaw
 import com.scrumdapp.checkpointservice.dto.SessionResponseDto
 import com.scrumdapp.checkpointservice.entities.CheckpointSession
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.ZoneId
@@ -27,16 +26,16 @@ fun CheckpointSession.toDto(): SessionResponseDto {
     )
 }
 
-fun CheckpointSession.applyPatch(patch: CheckpointSessionPatchDto): CheckpointSession {
+fun CheckpointSession.applyPatch(patch: UpdateCheckpointSessionDto): CheckpointSession {
     return apply {
         patch.name?.let { this.name = it }
     }
 }
 
-fun CheckpointSession.isActive(): Boolean {
-    if (this.createdDate != LocalDate.now()) return false
-    val endTime = this.startTime.plusMinutes(this.durationMinutes.toLong())
-    return LocalTime.now().isBefore(endTime)
+fun UpdateCheckpointSessionDto.applyTo(session: CheckpointSession): CheckpointSession {
+    return session.apply {
+        session.name?.let { this.name = it }
+    }
 }
 
 fun CheckpointSessionCreationDto.toEntity(

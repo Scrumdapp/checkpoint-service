@@ -1,16 +1,17 @@
 package com.scrumdapp.checkpointservice.services
 
 import com.scrumdapp.checkpointservice.dto.CheckpointSessionCreationDto
-import com.scrumdapp.checkpointservice.dto.CheckpointSessionPatchDto
+import com.scrumdapp.checkpointservice.dto.UpdateCheckpointSessionDto
 import com.scrumdapp.checkpointservice.dto.SessionDateResponseDto
 import com.scrumdapp.checkpointservice.dto.SessionResponseDto
 import com.scrumdapp.checkpointservice.entities.Checkpoint
+import com.scrumdapp.checkpointservice.entities.CheckpointSession
 import com.scrumdapp.checkpointservice.errors.BadRequestException
 import com.scrumdapp.checkpointservice.errors.ForbiddenException
 import com.scrumdapp.checkpointservice.errors.NotFoundException
 import com.scrumdapp.checkpointservice.groups.GroupRequestService
 import com.scrumdapp.checkpointservice.mappers.applyPatch
-import com.scrumdapp.checkpointservice.mappers.isActive
+import com.scrumdapp.checkpointservice.entities.isActive
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.mappers.toEntity
 import com.scrumdapp.checkpointservice.mappers.toSessionDateResponse
@@ -27,14 +28,24 @@ class CheckpointSessionService(
     private val groupRequestService: GroupRequestService,
 ) {
 
-    fun getAll(groupId: Long, date: LocalDate?): List<SessionResponseDto> {
+    fun getSessionByGroupId(groupId: Long, date: LocalDate?): List<SessionResponseDto> {
         val sessions = date
             ?.let { checkpointSessionRepository.findAllByGroupIdAndCreatedDate(groupId, it) }
             ?: checkpointSessionRepository.findAllByGroupId(groupId)
         return sessions.map { it.toDto() }
     }
 
-    fun getActive(groupId: Long, date: LocalDate?): List<SessionResponseDto> {
+     fun getActiveSession(sessionId: Long): CheckpointSession {
+        val session = checkpointSessionRepository.findById(sessionId) ?:
+        throw BadRequestException(message = "Session with id $sessionId not found")
+
+        if (!session.isActive()) {
+            throw BadRequestException(message = "Session has expired")
+        }
+        return session
+    }
+
+    fun getActiveSessionsByGroupId(groupId: Long, date: LocalDate?): List<SessionResponseDto> {
         val sessions = date
             ?.let { checkpointSessionRepository.findAllByGroupIdAndCreatedDate(groupId, it) }
             ?: checkpointSessionRepository.findAllByGroupId(groupId)
@@ -43,32 +54,30 @@ class CheckpointSessionService(
             .map { it.toDto() }
     }
 
-    fun getById(groupId: Long, id: Long): SessionResponseDto {
+    fun getSessionById(groupId: Long, id: Long): SessionResponseDto {
         val session = checkpointSessionRepository.findByIdAndGroupId(id, groupId) ?:
         throw NotFoundException(message = "Session with id $id not found")
         return session.toDto()
     }
 
-    fun getBetweenDates(groupId: Long, startDate: LocalDate, endDate: LocalDate): List<SessionResponseDto> {
+    fun getSessionsBetweenDates(groupId: Long, startDate: LocalDate, endDate: LocalDate): List<SessionResponseDto> {
         val sessions = checkpointSessionRepository.findAllByGroupIdAndCreatedDateBetween(groupId, startDate, endDate)
         return sessions.map { it.toDto() }
     }
 
-    fun getRecent(groupId: Long, limit: Int): SessionDateResponseDto {
+    fun getRecentSessionsDates(groupId: Long, limit: Int): SessionDateResponseDto {
         val sessions = checkpointSessionRepository.findRecentSessionDates(LocalDate.now(), groupId, limit)
 
         return sessions.toSessionDateResponse()
     }
 
-    fun getInMonths(groupId: Long, month: YearMonth, limit: Int): SessionDateResponseDto {
+    fun getSessionDatesInMonth(groupId: Long, month: YearMonth, limit: Int): SessionDateResponseDto {
         val startDate = month.atDay(1)
         val endDate = month.atEndOfMonth()
 
         val sessions = checkpointSessionRepository.findSessionDatesBetweenDates(startDate, endDate, groupId, limit)
         return sessions.toSessionDateResponse()
     }
-
-
 
     fun getMonthsWithSessions(groupId: Long): List<String> {
         val dates = checkpointSessionRepository.findMonthsWithSessions(groupId)
@@ -80,9 +89,9 @@ class CheckpointSessionService(
             .map(YearMonth::toString)
     }
 
-    fun create(groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
+    fun createSession(groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
         val session = checkpointSessionRepository.save(dto.toEntity(groupId, ownerId, dto.name))
-        val groupUsers = groupRequestService.getGroupUserIds(groupId)
+        val groupUsers = groupRequestService.getGroupUsers(groupId)
 
         val checkpoints = mutableListOf<Checkpoint>()
         for (groupUser in groupUsers) {
@@ -94,7 +103,7 @@ class CheckpointSessionService(
         return session.toDto()
     }
 
-    fun patch(groupId: Long, sessionId: Long, userId: Long, dto: CheckpointSessionPatchDto): SessionResponseDto {
+    fun patchSession(groupId: Long, sessionId: Long, userId: Long, dto: UpdateCheckpointSessionDto): SessionResponseDto {
         val session = checkpointSessionRepository.findByIdAndGroupId(sessionId, groupId) ?:
             throw BadRequestException(message = "Session with id $sessionId not found")
 
@@ -105,3 +114,4 @@ class CheckpointSessionService(
         return checkpointSessionRepository.save(session.applyPatch(dto)).toDto()
     }
 }
+

@@ -15,8 +15,8 @@ import tools.jackson.databind.ObjectMapper
 
 @Service
 class GroupRequestServiceImpl (
-    @Value($$"${GROUP_SERVICE_URL}") private val baseUrl: String,
-    @Value($$"${GROUP_FETCH_ENDPOINT:/groups/{groupId}/users}") private val fetchEndpoint: String,
+    @Value($$"${groupService.url}") private val baseUrl: String,
+    @Value($$"${groupService.endpoint}") private val fetchEndpoint: String,
     @Value($$"${spring.application.name}") private val appName: String
 ): GroupRequestService {
 
@@ -24,7 +24,7 @@ class GroupRequestServiceImpl (
 
     private val mapper = ObjectMapper()
 
-    override fun getGroupUserIds(groupId: Long): List<GroupUserResponse> {
+    override fun getGroupUsers(groupId: Long): List<GroupUserResponse> {
         val uri = fetchEndpoint.replace("{groupId}", groupId.toString())
 
         val jwt = SecurityContextHolder.getContext().authentication?.principal as Jwt

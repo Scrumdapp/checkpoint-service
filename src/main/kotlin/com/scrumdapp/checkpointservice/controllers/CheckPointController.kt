@@ -27,7 +27,7 @@ class CheckpointController(
         @PathVariable groupId: Long,
         @RequestParam(required = false) session: Long,
         ): List<CheckpointResponseDto> {
-        return checkPointService.findAllBySession(session, groupId)
+        return checkPointService.findCheckpointsBySessionId(session, groupId)
     }
 
     @PatchMapping
@@ -37,6 +37,6 @@ class CheckpointController(
         @PathVariable groupId: Long,
         @Valid @RequestBody checkpoint: CheckpointPatchDto,
     ): CheckpointResponseDto {
-        return checkPointService.upsert(groupId, checkpoint, passport.userId.toLong())
+        return checkPointService.upsertCheckpoint(groupId, checkpoint, passport.userId.toLong())
     }
 }

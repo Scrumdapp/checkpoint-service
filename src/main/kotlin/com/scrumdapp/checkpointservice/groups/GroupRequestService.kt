@@ -1,5 +1,5 @@
 package com.scrumdapp.checkpointservice.groups
 
 interface GroupRequestService {
-    fun getGroupUserIds(groupId: Long): List<GroupUserResponse>
+    fun getGroupUsers(groupId: Long): List<GroupUserResponse>
 }
