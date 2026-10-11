@@ -4,53 +4,62 @@ import com.scrumdapp.checkpointservice.errors.BadRequestException
 import com.scrumdapp.checkpointservice.errors.ForbiddenException
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
+import com.scrumdapp.checkpointservice.entities.Checkpoint
 import com.scrumdapp.checkpointservice.entities.CheckpointSession
+import com.scrumdapp.checkpointservice.groups.GroupRequestService
 import com.scrumdapp.checkpointservice.mappers.applyPatch
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.repository.CheckpointRepository
+import com.scrumdapp.checkpointservice.repository.CheckpointSessionRepository
 import org.springframework.stereotype.Service
-import java.time.Duration
-import java.time.LocalDate
-import java.time.LocalTime
 
 @Service
 class CheckPointService(
     private val checkpointRepository: CheckpointRepository,
+    private val checkpointSessionService: CheckpointSessionService,
+    private val groupRequestService: GroupRequestService
 ) {
+    fun upsertCheckpoint(
+        groupId: Long,
+        dto: CheckpointPatchDto,
+        ownId: Long
+    ): CheckpointResponseDto {
+        val session = checkpointSessionService.getActiveSession(dto.sessionId)
 
-    fun upsertCheckpoint(groupId: Long, dto: CheckpointPatchDto, ownId: Long): CheckpointResponseDto {
-
-        val sessionId = dto.sessionId
-        val checkpoints = checkpointRepository.findUserCheckpoint(sessionId, groupId, dto.userId)
-
-        if (checkpoints.isEmpty()) {
-            throw BadRequestException(message = "Could not find checkpoint")
-        }
-
-        val checkpoint = checkpoints.first()
-
-        if (!checkSessionAge(checkpoint.checkpointSession)) {
-            throw BadRequestException(message = "Checkpoint with id $sessionId has expired")
-        }
-
-        if (checkpoint.checkpointSession.groupUserId != ownId && dto.userId != ownId) {
+        if (session.groupUserId != ownId && dto.userId != ownId) {
             throw ForbiddenException(message = "Only the owner of a session can alter other users checkpoints")
         }
 
-        return checkpointRepository.save(checkpoint.applyPatch(dto)).toDto()
+        var checkpoint = checkpointRepository
+            .findUserCheckpoint(session.id, groupId, dto.userId)
+            .firstOrNull()
+
+        if (checkpoint != null) {
+            checkpoint.applyPatch(dto)
+        } else {
+           checkpoint = createNewUserCheckpoint(groupId, session, dto)
+        }
+
+        return checkpointRepository.save(checkpoint).toDto()
     }
 
-    fun findAllBySessionId(sessionId: Long, groupId: Long): List<CheckpointResponseDto> {
-        val checkpoints = checkpointRepository.findAllByCheckpointSessionId(sessionId)
-
-        if (checkpoints.isEmpty()) return checkpoints.map { it.toDto() }
-        if (checkpoints[0].checkpointSession.groupId != groupId) throw ForbiddenException()
+    fun findCheckpointsBySessionId(
+        sessionId: Long,
+        groupId: Long,
+    ): List<CheckpointResponseDto> {
+        val checkpoints = checkpointRepository.findAllInSession(sessionId, groupId)
         return checkpoints.map { it.toDto() }
     }
 
-    private fun checkSessionAge(session: CheckpointSession): Boolean {
-        if (session.createdDate != LocalDate.now()) return false
-        val endTime = session.startTime.plusMinutes(session.durationMinutes.toLong())
-        return Duration.between(LocalTime.now(), endTime).toMillis() > 0
+    private fun createNewUserCheckpoint(groupId: Long, session: CheckpointSession, dto: CheckpointPatchDto): Checkpoint {
+        val groupUsers = groupRequestService.getGroupUsers(groupId)
+
+        val user = groupUsers.find { it.user_id == dto.userId }
+        if (user == null || user.is_ghost) {
+            throw BadRequestException(message = "Could not create checkpoint for user ${dto.userId}")
+        }
+
+        return Checkpoint(session, dto.userId).applyPatch(dto)
     }
+
 }

@@ -1,11 +1,10 @@
 package com.scrumdapp.checkpointservice.controllers
 
-import com.scrumdapp.checkpointservice.errors.BadRequestException
-import com.scrumdapp.checkpointservice.errors.ForbiddenException
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
 import com.scrumdapp.checkpointservice.services.CheckPointService
-import com.scrumdapp.passportplugin.annotations.Passport
+import com.scrumdapp.passportplugin.annotations.groupAccess.IsInGroup
+import com.scrumdapp.passportplugin.annotations.passportController.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
@@ -23,26 +22,21 @@ class CheckpointController(
 ) {
 
     @GetMapping
+    @IsInGroup
     fun getCheckpoints(
-        @Passport passport: PassportContent,
-        @PathVariable groupId: Int,
-        @RequestParam(required = false) session: Long?,
+        @PathVariable groupId: Long,
+        @RequestParam(required = false) session: Long,
         ): List<CheckpointResponseDto> {
-
-        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
-        if (session == null) throw BadRequestException(message = "Param session is expected")
-
-        return checkPointService.findAllBySessionId(session, groupId.toLong())
+        return checkPointService.findCheckpointsBySessionId(session, groupId)
     }
 
     @PatchMapping
-    fun patchCheckpoint(
+    @IsInGroup
+    fun upsertCheckpoint(
         @Passport passport: PassportContent,
-        @PathVariable groupId: Int,
+        @PathVariable groupId: Long,
         @Valid @RequestBody checkpoint: CheckpointPatchDto,
-
     ): CheckpointResponseDto {
-        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId) == false ) throw ForbiddenException(message = "User is not a member of this group")
-        return checkPointService.upsertCheckpoint(groupId.toLong(), checkpoint, passport.userId.toLong())
+        return checkPointService.upsertCheckpoint(groupId, checkpoint, passport.userId.toLong())
     }
 }

@@ -68,6 +68,7 @@ interface CheckpointSessionRepository: JpaRepository<CheckpointSession, Int> {
         @Param("groupId") groupId: Long,
     ): List<LocalDate>
 
+    fun findById(sessionId: Long): CheckpointSession?
     fun findByIdAndGroupId(id: Long, groupId: Long): CheckpointSession?
     fun findAllByGroupId(groupId: Long): List<CheckpointSession>
     fun findAllByGroupIdAndCreatedDate(groupId: Long, createDate: LocalDate?): List<CheckpointSession>

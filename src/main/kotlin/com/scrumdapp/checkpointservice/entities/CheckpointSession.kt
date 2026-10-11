@@ -23,7 +23,12 @@ class CheckpointSession {
 
     var name: String? = null
 
-
     @OneToMany(mappedBy = "checkpointSession", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     var checkpoints: MutableList<Checkpoint> = mutableListOf()
+}
+
+fun CheckpointSession.isActive(): Boolean {
+    if (this.createdDate != LocalDate.now()) return false
+    val endTime = this.startTime.plusMinutes(this.durationMinutes.toLong())
+    return LocalTime.now().isBefore(endTime)
 }

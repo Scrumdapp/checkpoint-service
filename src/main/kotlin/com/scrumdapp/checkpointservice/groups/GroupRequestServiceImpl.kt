@@ -1,0 +1,50 @@
+package com.scrumdapp.checkpointservice.groups
+
+import com.scrumdapp.checkpointservice.errors.BadRequestException
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.stereotype.Service
+import org.springframework.web.client.RestClient.builder
+import org.springframework.web.client.toEntity
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
+
+@Service
+class GroupRequestServiceImpl (
+    @Value($$"${groupService.url}") private val baseUrl: String,
+    @Value($$"${groupService.endpoint}") private val fetchEndpoint: String,
+    @Value($$"${spring.application.name}") private val appName: String
+): GroupRequestService {
+
+    private val reqBuilder = builder().baseUrl(baseUrl).build()
+
+    private val mapper = ObjectMapper()
+
+    override fun getGroupUsers(groupId: Long): List<GroupUserResponse> {
+        val uri = fetchEndpoint.replace("{groupId}", groupId.toString())
+
+        val jwt = SecurityContextHolder.getContext().authentication?.principal as Jwt
+        try {
+            val res = reqBuilder.get()
+                .uri(uri)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer ${jwt.tokenValue}")
+                .header(HttpHeaders.VIA, appName)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .toEntity<String>()
+
+            if (res.statusCode != HttpStatus.OK) {
+                throw Exception("Unexpected response from user request")
+            } else {
+                val body = res.body ?: throw Exception("Unexpected response from user request")
+                return mapper.readValue(body, object : TypeReference<List<GroupUserResponse>>() {})
+            }
+        } catch (e: Exception) {
+            throw BadRequestException(message = "Downstream service is unreachable")
+        }
+    }
+}
