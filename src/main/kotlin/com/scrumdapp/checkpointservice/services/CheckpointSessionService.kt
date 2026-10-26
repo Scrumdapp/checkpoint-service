@@ -25,6 +25,7 @@ import java.time.YearMonth
 class CheckpointSessionService(
     private val checkpointSessionRepository: CheckpointSessionRepository,
     private val checkpointRepository: CheckpointRepository,
+    private val checkpointNamesRepository: CheckpointNamesRepository,
     private val groupRequestService: GroupRequestService,
 ) {
 
@@ -89,9 +90,17 @@ class CheckpointSessionService(
             .map(YearMonth::toString)
     }
 
-    fun createSession(groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
-        val session = checkpointSessionRepository.save(dto.toEntity(groupId, ownerId, dto.name))
-        val groupUsers = groupRequestService.getGroupUsers(groupId)
+    fun createSession(jwt: Jwt, groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
+        val checkpointSession = dto.toEntity(groupId, ownerId, dto.name)
+
+        val checkpointNames = checkpointNamesRepository.findByGroupId(groupId)
+        val listCheckpointNames = checkpointNames?.checkpoint_names ?: emptyList()
+        if(!listCheckpointNames.contains(dto.name)) {
+            throw BadRequestException(message = "Name is not valid")
+        }
+
+        val groupUsers = groupRequestService.getGroupUsers(jwt, groupId)
+        val session = checkpointSessionRepository.save(checkpointSession)
 
         val checkpoints = mutableListOf<Checkpoint>()
         for (groupUser in groupUsers) {
