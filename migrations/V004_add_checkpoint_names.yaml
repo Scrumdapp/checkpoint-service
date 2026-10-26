@@ -1,0 +1,15 @@
+operations:
+  - create_table:
+      columns:
+        - name: id
+          type: bigint
+        - name: group_id
+          type: int
+        - name: checkpoint_names
+          type: text[]
+      constraints:
+        - columns:
+            - id
+          name: pk_checkpoint_session_names
+          type: primary_key
+      name: check_point_names
