@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface CheckpointNamesRepository: JpaRepository<CheckpointNames, Int> {
-    fun findByGroupId(group_id: Int): CheckpointNames?
+interface CheckpointNamesRepository: JpaRepository<CheckpointNames, Long> {
+    fun findByGroupId(group_id: Long): CheckpointNames?
 }

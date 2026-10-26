@@ -4,7 +4,7 @@ operations:
         - name: id
           type: bigint
         - name: group_id
-          type: int
+          type: bigint
         - name: checkpoint_names
           type: text[]
       constraints:
