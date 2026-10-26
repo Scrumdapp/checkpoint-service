@@ -13,7 +13,7 @@ class CheckPointNamesService(
     private val checkpointNamesRepository: CheckpointNamesRepository
 ) {
 
-    fun getCheckPointNames(groupId: Int): CheckpointNamesDto {
+    fun getCheckPointNames(groupId: Long): CheckpointNamesDto {
         val entity = checkpointNamesRepository.findByGroupId(groupId)
             ?: throw NotFoundException(message = "Checkpoint names not found")
 
@@ -21,7 +21,7 @@ class CheckPointNamesService(
     }
 
     fun updateCheckPointNames(
-        groupId: Int,
+        groupId: Long,
         dto: CheckpointNamesDto
     ): CheckpointNamesDto {
         val entity = checkpointNamesRepository.findByGroupId(groupId)

@@ -11,7 +11,7 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "check_point_names")
 class CheckpointNames(
-        group_id: Int,
+        group_id: Long,
         checkpointNames: List<String>
 ) {
 

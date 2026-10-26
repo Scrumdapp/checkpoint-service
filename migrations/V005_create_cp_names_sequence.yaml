@@ -1,0 +1,6 @@
+operations:
+  - sql:
+      up: |
+        CREATE SEQUENCE IF NOT EXISTS check_point_names_seq START WITH 1 INCREMENT BY 1;
+      down: |
+        DROP SEQUENCE check_point_names_seq;

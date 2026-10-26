@@ -109,7 +109,7 @@ class CheckpointSessionService(
     fun createSession(jwt: Jwt, groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
         val checkpointSession = dto.toEntity(groupId, ownerId, dto.name)
 
-        val checkpointNames = checkpointNamesRepository.findByGroupId(groupId.toInt())
+        val checkpointNames = checkpointNamesRepository.findByGroupId(groupId)
         val listCheckpointNames = checkpointNames?.checkpoint_names ?: emptyList()
         if(!listCheckpointNames.contains(dto.name)) {
             throw BadRequestException(message = "Name is not valid")

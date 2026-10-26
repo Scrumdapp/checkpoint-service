@@ -22,9 +22,9 @@ class CheckpointNamesController(
     @GetMapping
     fun getCheckpointNames(
         @Passport passport: PassportContent,
-        @PathVariable groupId: Int,
+        @PathVariable groupId: Long,
     ): CheckpointNamesDto {
-        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
+        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId.toInt()) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
         return checkPointNamesService.getCheckPointNames(groupId)
     }
 
@@ -32,9 +32,9 @@ class CheckpointNamesController(
     fun putCheckpointName(
         @Passport passport: PassportContent,
         @Valid @RequestBody dto: CheckpointNamesDto,
-        @PathVariable groupId: Int,
+        @PathVariable groupId: Long,
     ): CheckpointNamesDto {
-        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
+        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId.toInt()) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
         return checkPointNamesService.updateCheckPointNames(groupId, dto)
     }
 }
