@@ -14,8 +14,9 @@ class CheckPointNamesService(
 ) {
 
     fun getCheckPointNames(groupId: Long): CheckpointNamesDto {
-        val entity = checkpointNamesRepository.findByGroupId(groupId)
-            ?: throw NotFoundException(message = "Checkpoint names not found")
+        val entity = checkpointNamesRepository.findByGroupId(groupId) ?: return CheckpointNamesDto(
+            checkpointNames = listOf()
+        )
 
         return CheckpointNamesMapper.toDto(entity)
     }
