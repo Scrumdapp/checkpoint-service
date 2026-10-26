@@ -25,16 +25,10 @@ class CheckPointNamesService(
         dto: CheckpointNamesDto
     ): CheckpointNamesDto {
         val entity = checkpointNamesRepository.findByGroupId(groupId)
-            ?.apply {
-                checkpoint_names = dto.checkpointNames
-            }
-            ?: CheckpointNames(
-                group_id = groupId,
-                checkpointNames = dto.checkpointNames
-            )
+            ?: CheckpointNames(groupId, dto.checkpointNames)
 
-        return CheckpointNamesMapper.toDto(
-            checkpointNamesRepository.save(entity)
-        )
+        entity.checkpoint_names = dto.checkpointNames
+        checkpointNamesRepository.save(entity)
+        return CheckpointNamesMapper.toDto(entity)
     }
 }
