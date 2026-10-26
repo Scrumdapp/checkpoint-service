@@ -2,7 +2,7 @@ package com.scrumdapp.checkpointservice.controllers
 
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
-import com.scrumdapp.checkpointservice.services.CheckPointService
+import com.scrumdapp.checkpointservice.services.CheckpointService
 import com.scrumdapp.passportplugin.annotations.groupAccess.IsInGroup
 import com.scrumdapp.passportplugin.annotations.passportController.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/groups/{groupId}/checkpoints")
 class CheckpointController(
-    private val checkPointService: CheckPointService
+    private val checkPointService: CheckpointService
 ) {
 
     @GetMapping

@@ -26,4 +26,5 @@ interface CheckpointRepository: JpaRepository<Checkpoint, Long> {
             AND cp.checkpointSession.groupId = :groupId
     """)
     fun findAllInSession(@Param("sessionId") sessionId: Long, @Param("groupId") groupId: Long): List<Checkpoint>
+
  }

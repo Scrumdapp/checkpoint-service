@@ -10,11 +10,10 @@ import com.scrumdapp.checkpointservice.groups.GroupRequestService
 import com.scrumdapp.checkpointservice.mappers.applyPatch
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.repository.CheckpointRepository
-import com.scrumdapp.checkpointservice.repository.CheckpointSessionRepository
 import org.springframework.stereotype.Service
 
 @Service
-class CheckPointService(
+class CheckpointService(
     private val checkpointRepository: CheckpointRepository,
     private val checkpointSessionService: CheckpointSessionService,
     private val groupRequestService: GroupRequestService

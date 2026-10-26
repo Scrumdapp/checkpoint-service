@@ -36,7 +36,7 @@ interface CheckpointSessionRepository: JpaRepository<CheckpointSession, Int> {
             SELECT 
                 cs.created_date AS "createdDate",
                 cs.id AS "id"
-            FROM (
+            FROM ( 
                 SELECT id, created_date, DENSE_RANK() OVER (ORDER BY created_date DESC) AS rk
                 FROM checkpoint_sessions
                 WHERE created_date <= :endDate
