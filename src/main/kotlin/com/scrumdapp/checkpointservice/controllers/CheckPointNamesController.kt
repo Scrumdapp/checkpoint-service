@@ -23,7 +23,7 @@ class CheckpointNamesController(
     fun getCheckpointNames(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,
-    ): CheckpointNamesDto {
+    ): CheckpointNamesDto? {
         if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId.toInt()) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
         return checkPointNamesService.getCheckPointNames(groupId)
     }
