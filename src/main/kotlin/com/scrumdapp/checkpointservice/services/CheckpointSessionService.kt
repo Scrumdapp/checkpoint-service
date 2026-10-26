@@ -10,6 +10,7 @@ import com.scrumdapp.checkpointservice.errors.BadRequestException
 import com.scrumdapp.checkpointservice.groups.GroupRequestService
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.mappers.toEntity
+import com.scrumdapp.checkpointservice.repository.CheckpointNamesRepository
 import com.scrumdapp.checkpointservice.repository.CheckpointRepository
 import com.scrumdapp.checkpointservice.repository.CheckpointSessionRepository
 import org.springframework.security.oauth2.jwt.Jwt
@@ -22,6 +23,7 @@ import java.time.YearMonth
 class CheckpointSessionService(
     private val checkpointSessionRepository: CheckpointSessionRepository,
     private val checkpointRepository: CheckpointRepository,
+    private val checkpointNamesRepository: CheckpointNamesRepository,
     private val groupRequestService: GroupRequestService,
 ) {
 
@@ -106,6 +108,12 @@ class CheckpointSessionService(
 
     fun createSession(jwt: Jwt, groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
         val checkpointSession = dto.toEntity(groupId, ownerId, dto.name)
+
+        val checkpointNames = checkpointNamesRepository.findByGroupId(groupId.toInt())
+        val listCheckpointNames = checkpointNames?.checkpoint_names ?: emptyList()
+        if(!listCheckpointNames.contains(dto.name)) {
+            throw BadRequestException(message = "Name is not valid")
+        }
 
         val groupUsers = groupRequestService.getGroupUsers(jwt, groupId)
         val session = checkpointSessionRepository.save(checkpointSession)
