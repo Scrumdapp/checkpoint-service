@@ -1,10 +1,8 @@
 package com.scrumdapp.checkpointservice.controllers
 
 import com.scrumdapp.checkpointservice.dto.CheckpointNamesDto
-import com.scrumdapp.checkpointservice.errors.ForbiddenException
-import com.scrumdapp.checkpointservice.services.CheckPointNamesService
-import com.scrumdapp.passportplugin.annotations.Passport
-import com.scrumdapp.passportplugin.jwt.PassportContent
+import com.scrumdapp.checkpointservice.services.CheckpointNameService
+import com.scrumdapp.passportplugin.annotations.groupAccess.IsInGroup
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -16,25 +14,23 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/groups/{groupId}/checkpoints/names")
 class CheckpointNamesController(
-    private val checkPointNamesService: CheckPointNamesService
+    private val checkPointNamesService: CheckpointNameService
 ) {
 
     @GetMapping
+    @IsInGroup
     fun getCheckpointNames(
-        @Passport passport: PassportContent,
         @PathVariable groupId: Long,
     ): CheckpointNamesDto {
-        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId.toInt()) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
-        return checkPointNamesService.getCheckPointNames(groupId)
+        return checkPointNamesService.getCheckpointNames(groupId)
     }
 
     @PutMapping
+    @IsInGroup
     fun putCheckpointName(
-        @Passport passport: PassportContent,
         @Valid @RequestBody dto: CheckpointNamesDto,
         @PathVariable groupId: Long,
     ): CheckpointNamesDto {
-        if (passport.userGroups.isNullOrEmpty() || passport.userGroups?.contains(groupId.toInt()) == false ) throw ForbiddenException(message = "Forbidden, user not part of group")
         return checkPointNamesService.updateCheckPointNames(groupId, dto)
     }
 }

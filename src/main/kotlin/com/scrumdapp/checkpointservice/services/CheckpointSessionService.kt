@@ -15,6 +15,7 @@ import com.scrumdapp.checkpointservice.entities.isActive
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.mappers.toEntity
 import com.scrumdapp.checkpointservice.mappers.toSessionDateResponse
+import com.scrumdapp.checkpointservice.repository.CheckpointNamesRepository
 import com.scrumdapp.checkpointservice.repository.CheckpointRepository
 import com.scrumdapp.checkpointservice.repository.CheckpointSessionRepository
 import org.springframework.stereotype.Service
@@ -90,16 +91,16 @@ class CheckpointSessionService(
             .map(YearMonth::toString)
     }
 
-    fun createSession(jwt: Jwt, groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
+    fun createSession(groupId: Long, ownerId: Long, dto: CheckpointSessionCreationDto): SessionResponseDto {
         val checkpointSession = dto.toEntity(groupId, ownerId, dto.name)
 
         val checkpointNames = checkpointNamesRepository.findByGroupId(groupId)
         val listCheckpointNames = checkpointNames?.checkpoint_names ?: emptyList()
         if(!listCheckpointNames.contains(dto.name)) {
-            throw BadRequestException(message = "Name is not valid")
+            throw BadRequestException(message = "${dto.name} is not a known name")
         }
 
-        val groupUsers = groupRequestService.getGroupUsers(jwt, groupId)
+        val groupUsers = groupRequestService.getGroupUsers(groupId)
         val session = checkpointSessionRepository.save(checkpointSession)
 
         val checkpoints = mutableListOf<Checkpoint>()

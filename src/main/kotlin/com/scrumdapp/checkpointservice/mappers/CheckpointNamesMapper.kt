@@ -1,20 +1,16 @@
 package com.scrumdapp.checkpointservice.mappers
 
 import com.scrumdapp.checkpointservice.dto.CheckpointNamesDto
+import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.entities.CheckpointNames
 
 
-object CheckpointNamesMapper {
+fun CheckpointNames.toDto(): CheckpointNamesDto {
+    return CheckpointNamesDto(this.checkpoint_names)
+}
 
-    fun toDto(entity: CheckpointNames): CheckpointNamesDto =
-        CheckpointNamesDto(
-            checkpointNames = entity.checkpoint_names
-        )
-
-    fun updateEntity(
-        entity: CheckpointNames,
-        dto: CheckpointNamesDto
-    ) {
-        entity.checkpoint_names = dto.checkpointNames
+fun CheckpointNames.patchFromDto(dto: CheckpointNamesDto): CheckpointNames {
+    return this.apply {
+        checkpoint_names = dto.checkpointNames
     }
 }
