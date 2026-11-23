@@ -8,6 +8,7 @@ import com.scrumdapp.checkpointservice.dto.SessionDateResponseDto
 import com.scrumdapp.checkpointservice.dto.SessionResponseDto
 import com.scrumdapp.checkpointservice.errors.ForbiddenException
 import com.scrumdapp.checkpointservice.services.CheckpointSessionService
+import com.scrumdapp.passportplugin.annotations.groupAccess.IsInGroup
 import com.scrumdapp.passportplugin.annotations.passportController.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
 import jakarta.servlet.http.HttpServletResponse
@@ -35,16 +36,15 @@ class CheckpointSessionController(
 ) {
 
     @GetMapping
+    @IsInGroup
     fun getSessionsBetweenDates(
-        @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @RequestParam(required = false) onlyActive: Boolean?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate?,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate?
     ): List<SessionResponseDto> {
-        passport.userGroups.find { it == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
+
 
         if (from != null && to != null && from.isAfter(to)) {
             throw BadRequestException(message = "from date must be before to date")
@@ -58,27 +58,22 @@ class CheckpointSessionController(
     }
 
     @GetMapping("/{sessionId}")
+    @IsInGroup
     fun getSession(
-        @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @PathVariable sessionId: Long
     ): SessionResponseDto {
-        passport.userGroups.find { it == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
-
         return sessionService.getSession(groupId, sessionId)
             ?: throw NotFoundException(message = "session with $sessionId not found")
     }
 
     @GetMapping("/dates")
+    @IsInGroup
     fun getRecentSessions(
         @PathVariable groupId: Long,
-        @Passport passport: PassportContent,
         @RequestParam(required = false) limit: Int?,
         @RequestParam(required = false) month: YearMonth?,
     ): SessionDateResponseDto {
-        passport.userGroups.find { it == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
 
         if (limit != null && limit !in 1..20) throw BadRequestException(message = "Limit must be between 0 and 20")
         if (month != null) {
@@ -89,26 +84,21 @@ class CheckpointSessionController(
 
 
     @GetMapping("/months")
+    @IsInGroup
     fun getMonthsWithSessions(
-        @Passport passport: PassportContent,
         @PathVariable groupId: Long
     ): List<String> {
-        passport.userGroups.find { it == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
-
         return sessionService.getMonthsWithSessions(groupId)
     }
 
     @PostMapping
+    @IsInGroup
     fun createSession(
         @Passport passport: PassportContent,
         res: HttpServletResponse,
         @PathVariable groupId: Long,
         @Valid @RequestBody dto: CheckpointSessionCreationDto
     ): SessionResponseDto {
-        passport.userGroups.find { it == groupId }
-            ?: throw ForbiddenException(message = "User is not a member of this group")
-
         val jwt = SecurityContextHolder.getContext().authentication?.principal as? Jwt ?: throw ServerFaultException()
 
         res.status = HttpStatus.CREATED.value()

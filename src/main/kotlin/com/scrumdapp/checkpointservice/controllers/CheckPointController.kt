@@ -5,6 +5,7 @@ import com.scrumdapp.checkpointservice.errors.ForbiddenException
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
 import com.scrumdapp.checkpointservice.services.CheckPointService
+import com.scrumdapp.passportplugin.annotations.groupAccess.IsInGroup
 import com.scrumdapp.passportplugin.annotations.passportController.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
 import jakarta.validation.Valid
@@ -23,26 +24,25 @@ class CheckpointController(
 ) {
 
     @GetMapping
+    @IsInGroup
     fun getCheckpoints(
-        @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @RequestParam(required = false) session: Long?,
         ): List<CheckpointResponseDto> {
 
-        if (passport.userGroups.isEmpty() || !passport.userGroups.contains(groupId)) throw ForbiddenException(message = "Forbidden, user not part of group")
         if (session == null) throw BadRequestException(message = "Param session is expected")
 
         return checkPointService.findAllBySessionId(session, groupId)
     }
 
     @PatchMapping
+    @IsInGroup
     fun patchCheckpoint(
         @Passport passport: PassportContent,
         @PathVariable groupId: Long,
         @Valid @RequestBody checkpoint: CheckpointPatchDto,
 
     ): CheckpointResponseDto {
-        if (passport.userGroups.isEmpty() || !passport.userGroups.contains(groupId)) throw ForbiddenException(message = "User is not a member of this group")
         return checkPointService.upsertCheckpoint(groupId, checkpoint, passport.userId)
     }
 }
