@@ -8,6 +8,8 @@ import com.scrumdapp.checkpointservice.dto.SessionResponseDto
 import com.scrumdapp.checkpointservice.entities.Checkpoint
 import com.scrumdapp.checkpointservice.errors.BadRequestException
 import com.scrumdapp.checkpointservice.groups.GroupRequestService
+import com.scrumdapp.checkpointservice.kafka.KafkaService
+import com.scrumdapp.checkpointservice.kafka.messages.CheckpointSessionCreatedV1
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.mappers.toEntity
 import com.scrumdapp.checkpointservice.repository.CheckpointNamesRepository
@@ -21,6 +23,7 @@ import java.time.YearMonth
 
 @Service
 class CheckpointSessionService(
+    private val kafkaService: KafkaService,
     private val checkpointSessionRepository: CheckpointSessionRepository,
     private val checkpointRepository: CheckpointRepository,
     private val checkpointNamesRepository: CheckpointNamesRepository,
@@ -122,6 +125,8 @@ class CheckpointSessionService(
             if (groupUser.is_ghost) continue
             checkpointRepository.save(Checkpoint(session, groupUser.user_id))
         }
+
+        kafkaService.send(CheckpointSessionCreatedV1(session.groupId, session.id))
 
         return session.toDto()
     }

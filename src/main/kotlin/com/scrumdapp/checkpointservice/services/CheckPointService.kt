@@ -5,6 +5,7 @@ import com.scrumdapp.checkpointservice.errors.ForbiddenException
 import com.scrumdapp.checkpointservice.dto.CheckpointPatchDto
 import com.scrumdapp.checkpointservice.dto.CheckpointResponseDto
 import com.scrumdapp.checkpointservice.entities.CheckpointSession
+import com.scrumdapp.checkpointservice.kafka.KafkaService
 import com.scrumdapp.checkpointservice.mappers.applyPatch
 import com.scrumdapp.checkpointservice.mappers.toDto
 import com.scrumdapp.checkpointservice.repository.CheckpointRepository
@@ -15,6 +16,7 @@ import java.time.LocalTime
 
 @Service
 class CheckPointService(
+    private val kafkaService: KafkaService,
     private val checkpointRepository: CheckpointRepository,
 ) {
 
@@ -27,7 +29,7 @@ class CheckPointService(
             throw BadRequestException(message = "Could not find checkpoint")
         }
 
-        val checkpoint = checkpoints.first()
+        var checkpoint = checkpoints.first()
 
         if (!checkSessionAge(checkpoint.checkpointSession)) {
             throw BadRequestException(message = "Checkpoint with id $sessionId has expired")
@@ -37,7 +39,8 @@ class CheckPointService(
             throw ForbiddenException(message = "Only the owner of a session can alter other users checkpoints")
         }
 
-        return checkpointRepository.save(checkpoint.applyPatch(dto)).toDto()
+        checkpoint = checkpointRepository.save(checkpoint.applyPatch(dto))
+        return checkpoint.toDto()
     }
 
     fun findAllBySessionId(sessionId: Long, groupId: Long): List<CheckpointResponseDto> {
