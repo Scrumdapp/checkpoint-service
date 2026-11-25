@@ -42,12 +42,8 @@ class KafkaConfiguration {
     @Bean
     fun kafkaTemplateFactory(
         producerFactory: ProducerFactory<String, String>,
-//        consumerFactory: ConsumerFactory<String, String>
     ): KafkaTemplate<String, String> {
-        return KafkaTemplate(producerFactory).apply {
-//            setConsumerFactory(consumerFactory)
-//            setMessagingConverter(org.springframework.messaging.converter.JacksonJsonMessageConverter())
-        }
+        return KafkaTemplate(producerFactory)
     }
 
     @Bean
